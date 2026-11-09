@@ -1,0 +1,109 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\srini\OneDrive\Desktop\NetGuardian
+configfile: pytest.ini
+testpaths: backend/tests
+plugins: anyio-4.15.1, locust-2.46.7, platformdirs-4.12.3, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 87 items
+
+backend/tests/test_backend.py::test_password_hashing PASSED              [  1%]
+backend/tests/test_backend.py::test_root_endpoint PASSED                 [  2%]
+backend/tests/test_backend.py::test_login_admin PASSED                   [  3%]
+backend/tests/test_backend.py::test_login_wrong_password_friendly_error PASSED [  4%]
+backend/tests/test_backend.py::test_login_rate_limiting_6th_attempt PASSED [  5%]
+backend/tests/test_backend.py::test_analyst_cannot_open_admin_endpoints_403 PASSED [  6%]
+backend/tests/test_backend.py::test_passwords_not_plain_text_in_db PASSED [  8%]
+backend/tests/test_backend.py::test_user_logout PASSED                   [  9%]
+backend/tests/test_backend.py::test_dashboard_summary PASSED             [ 10%]
+backend/tests/test_backend.py::test_devices_list PASSED                  [ 11%]
+backend/tests/test_backend.py::test_device_risk_breakdown PASSED         [ 12%]
+backend/tests/test_backend.py::test_ai_detector PASSED                   [ 13%]
+backend/tests/test_backend.py::test_digital_twin_topology PASSED         [ 14%]
+backend/tests/test_backend.py::test_what_if_compromise_and_isolation PASSED [ 16%]
+backend/tests/test_backend.py::test_demo_step_and_reset PASSED           [ 17%]
+backend/tests/test_backend.py::test_login_rate_limit_casing_and_spaces_bypass_prevented PASSED [ 18%]
+backend/tests/test_backend.py::test_pbkdf2_iterations_and_rehash_upgrade PASSED [ 19%]
+backend/tests/test_backend.py::test_session_timeout_configurable_via_settings PASSED [ 20%]
+backend/tests/test_backend.py::test_production_mode_startup_refusal PASSED [ 21%]
+backend/tests/test_backend.py::test_cookie_auth_and_csrf_validation PASSED [ 22%]
+backend/tests/test_phase2.py::test_seeded_network_documentation_ips_and_levels PASSED [ 24%]
+backend/tests/test_phase2.py::test_deterministic_traffic_same_seed_and_different_seeds PASSED [ 25%]
+backend/tests/test_phase2.py::test_normal_traffic_values_vary PASSED     [ 26%]
+backend/tests/test_phase2.py::test_add_device_validation_and_rejections PASSED [ 27%]
+backend/tests/test_phase2.py::test_baseline_learning PASSED              [ 28%]
+backend/tests/test_phase2.py::test_100_devices_performance PASSED        [ 29%]
+backend/tests/test_phase2.py::test_rate_limit_ip_does_not_trust_x_forwarded_for_by_default PASSED [ 31%]
+backend/tests/test_phase2.py::test_rate_limit_different_real_client_not_locked_out PASSED [ 32%]
+backend/tests/test_phase2.py::test_rate_limit_trusted_proxy_honors_x_forwarded_for PASSED [ 33%]
+backend/tests/test_phase2.py::test_traffic_records_50000_cap_and_fast_queries PASSED [ 34%]
+backend/tests/test_phase3.py::test_acceptance_check_1_normal_traffic_zero_alerts PASSED [ 35%]
+backend/tests/test_phase3.py::test_acceptance_check_2_unknown_device_medium_alert PASSED [ 36%]
+backend/tests/test_phase3.py::test_acceptance_check_3_port_scan_high_alert PASSED [ 37%]
+backend/tests/test_phase3.py::test_acceptance_check_4_traffic_spike_medium_alert PASSED [ 39%]
+backend/tests/test_phase3.py::test_acceptance_check_5_failed_authentication_alert PASSED [ 40%]
+backend/tests/test_phase3.py::test_acceptance_check_6_triggering_same_event_3_times_updates_1_event PASSED [ 41%]
+backend/tests/test_phase3.py::test_acceptance_check_7_status_change_persistence_and_audit_log PASSED [ 42%]
+backend/tests/test_phase3.py::test_acceptance_check_8_analyst_can_change_status_unauthenticated_gets_401 PASSED [ 43%]
+backend/tests/test_phase3.py::test_threats_page_api_filters_and_pagination PASSED [ 44%]
+backend/tests/test_phase3.py::test_rule_pipeline_window_evaluation PASSED [ 45%]
+backend/tests/test_phase4.py::test_acceptance_check_1_model_train_save_load_deterministic PASSED [ 47%]
+backend/tests/test_phase4.py::test_acceptance_check_2_normal_traffic_zero_ai_only_alerts PASSED [ 48%]
+backend/tests/test_phase4.py::test_acceptance_check_3_all_injected_anomaly_types_score_anomalous PASSED [ 49%]
+backend/tests/test_phase4.py::test_acceptance_check_4_dynamic_explainability_reasons PASSED [ 50%]
+backend/tests/test_phase4.py::test_acceptance_check_5_corrupted_model_fallback_and_status PASSED [ 51%]
+backend/tests/test_phase4.py::test_acceptance_check_6_model_card_saved_metadata PASSED [ 52%]
+backend/tests/test_phase4.py::test_detection_port_scan_120_connections_no_cap PASSED [ 54%]
+backend/tests/test_phase4.py::test_detection_100_active_devices_no_cap PASSED [ 55%]
+backend/tests/test_phase4.py::test_ai_only_escalation_two_consecutive_windows PASSED [ 56%]
+backend/tests/test_phase4.py::test_model_alone_false_positive_rate_1000_windows PASSED [ 57%]
+backend/tests/test_phase4.py::test_footer_ai_status_live_probe PASSED    [ 58%]
+backend/tests/test_phase5.py::test_item1_seeded_network_no_events_risk_zero_health_100 PASSED [ 59%]
+backend/tests/test_phase5.py::test_item2_single_port_scan_factor_list_no_double_counting PASSED [ 60%]
+backend/tests/test_phase5.py::test_item3_recomputing_twice_gives_same_numbers_no_circular_dependency PASSED [ 62%]
+backend/tests/test_phase5.py::test_item4_strong_sync_check_database_risk_only_divergence PASSED [ 63%]
+backend/tests/test_phase5.py::test_item5_health_score_clamped_with_extreme_threats PASSED [ 64%]
+backend/tests/test_phase5.py::test_item6_graph_rebuilt_from_db_on_startup_and_new_twin_matches PASSED [ 65%]
+backend/tests/test_phase5.py::test_acceptance_check_1_add_device_updates_graph_counts PASSED [ 66%]
+backend/tests/test_phase5.py::test_acceptance_check_3_resolving_or_false_positive_lowers_risk_and_recovers_health PASSED [ 67%]
+backend/tests/test_phase5.py::test_acceptance_check_6_deleting_or_taking_offline_updates_graph_and_health_penalty PASSED [ 68%]
+backend/tests/test_phase6.py::test_acceptance_check_1_compromised_pc_reaches_switch_server_database_3_hops_critical_asset_yes PASSED [ 70%]
+backend/tests/test_phase6.py::test_acceptance_check_2_path_risk_formula_and_breakdown_exact_match PASSED [ 71%]
+backend/tests/test_phase6.py::test_acceptance_check_3_printer_or_phone_different_risk_and_source_risk_variation PASSED [ 72%]
+backend/tests/test_phase6.py::test_acceptance_check_4_simulate_isolation_zero_reachability_events_contained_health_improves_traffic_silenced PASSED [ 73%]
+backend/tests/test_phase6.py::test_acceptance_check_5_restore_device_links_and_reproducible_what_if PASSED [ 74%]
+backend/tests/test_phase6.py::test_acceptance_check_6_isolated_or_offline_source_returns_no_reachable_systems_without_error PASSED [ 75%]
+backend/tests/test_phase6.py::test_acceptance_check_7_simulation_never_writes_traffic_or_changes_real_device_data PASSED [ 77%]
+backend/tests/test_phase6.py::test_acceptance_check_8_security_unauthenticated_401_no_csrf_403 PASSED [ 78%]
+backend/tests/test_phase6.py::test_acceptance_check_9_what_if_read_only_never_mutates_device_risk_status_or_traffic PASSED [ 79%]
+backend/tests/test_phase7a.py::test_acceptance_check_1_kpi_values_equal_database_counts PASSED [ 80%]
+backend/tests/test_phase7a.py::test_acceptance_check_2_dashboard_health_equals_api_and_breakdown_sums PASSED [ 81%]
+backend/tests/test_phase7a.py::test_acceptance_check_3_settings_behavior_change_audit_log_validation_analyst_403 PASSED [ 82%]
+backend/tests/test_phase7a.py::test_acceptance_check_4_traffic_pause_resume_and_step PASSED [ 83%]
+backend/tests/test_phase7a.py::test_acceptance_check_5_system_status_subsystem_probes_and_reasons PASSED [ 85%]
+backend/tests/test_phase7a.py::test_acceptance_check_6_user_notifications_read_state_on_server PASSED [ 86%]
+backend/tests/test_phase7b.py::test_acceptance_check_1_twelve_step_demo_end_to_end PASSED [ 87%]
+backend/tests/test_phase7b.py::test_acceptance_check_2_reset_demo_restores_baseline_idempotently PASSED [ 88%]
+backend/tests/test_phase7b.py::test_acceptance_check_3_live_mode_fallback_without_permission PASSED [ 89%]
+backend/tests/test_phase7b.py::test_acceptance_check_4_fake_packet_proves_no_payload_stored PASSED [ 90%]
+backend/tests/test_phase7b.py::test_acceptance_check_5_demo_mode_uses_real_engine_data PASSED [ 91%]
+backend/tests/test_security_audit.py::test_unauthenticated_state_changing_endpoints_return_401 PASSED [ 93%]
+backend/tests/test_security_audit.py::test_analyst_forbidden_on_admin_only_endpoints_returns_403 PASSED [ 94%]
+backend/tests/test_security_audit.py::test_csrf_protection_on_cookie_authenticated_requests PASSED [ 95%]
+backend/tests/test_security_audit.py::test_trigger_event_requires_json_body_rejects_query_parameters PASSED [ 96%]
+backend/tests/test_soak.py::test_soak_normal_traffic_zero_alerts PASSED  [ 97%]
+backend/tests/test_soak.py::test_soak_light_traffic_zero_alerts PASSED   [ 98%]
+backend/tests/test_soak.py::test_soak_busy_traffic_zero_alerts PASSED    [100%]
+
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\starlette\testclient.py:53
+  C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 87 passed, 2 warnings in 146.13s (0:02:26) ==================
