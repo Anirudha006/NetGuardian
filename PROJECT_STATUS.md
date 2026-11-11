@@ -1,9 +1,9 @@
 # NetGuardian — Project Status
 
 ## Status Summary
-- **Current Phase**: Phase 7B — Live Mode, Guided Demo, Reset, Demo Mode (Fully Implemented, Passive Metadata-Only Live Packet Collector with Zero Payload Storage, Automatic Driver/Permission Fallback, 12-Step Real-Engine Guided Demo with Multi-Page Navigation, Clean Baseline Reset with RBAC, High-Contrast Demo Presentation Mode, Passing 87/87 Pytest Suites + Real Playwright E2E with 13 Screenshots)
+- **Current Phase**: Phase 8 — Analytics and Reporting (Fully Implemented, Server-Side SQL Aggregation, Light-Theme Accessible Recharts, Time-Range & Source Filters, NetGuardian Security Report Generation, Multi-Page ReportLab PDF with Running Page Numbers, RBAC & Audit Logging, 50,000 Record Benchmark Verified, 98/98 Pytest Suites Passing + Real Playwright E2E Suite)
 - **Design Standard**: Strictly Light Theme Only (white surfaces `#ffffff`/`#f8fafc`, slate borders `#e2e8f0`, dark text `#0f172a`, zero neon/glow)
-- **Backend Status**: 87/87 Automated Pytest Suites Passing (100% success rate across 10 test suites)
+- **Backend Status**: 98/98 Automated Pytest Suites Passing (100% success rate across 11 test suites in 235.01s)
 - **E2E Browser Status**: Real Chromium Playwright E2E suites passing with all screenshots captured & preserved in `backend/tests/screenshots/` and artifacts directory
 - **Frontend Status**: Production build verified (`vite build` succeeded with 0 errors)
 - **Operational Mode**: MODE: SIMULATION / MODE: LIVE MONITORING visible across all views; all telemetry tagged SIMULATED, OBSERVED, DETECTED, and HYPOTHETICAL
@@ -22,7 +22,7 @@
 | **Phase 6** | What-If Simulation Engine (Attack Path Traversal, Risk Formulas, Simulated Isolation & Restore, Before vs After Comparison, Run History) | ✅ Completed & Verified |
 | **Phase 7A** | Dashboard, Settings, System Status (Real Engine Data, KPI Cards, Health Breakdown, Mini Topology, Needs Attention List, Latest AI Card, Guidance Card, Reliable Polling, Traffic Pause/Resume/Step Controls, Subsystem Probes with Reasons, Analyst Read-Only Settings, Server Notification State, Friendly Offline States) | ✅ Completed & Verified |
 | **Phase 7B** | Live Mode, Guided Demo, Reset, Demo Mode (Metadata-Only Live Collector, Zero Payload Stored Invariant, Fallback to Simulation, 12-Step Guided Demo with Page Transitions, Demo Reset to Baseline, Demo Presentation Mode, Distinct Tags) | ✅ Completed & Verified |
-| **Phase 8** | Reporting & Analytics (Recharts Light Theme, NetGuardian Security Report Export) | Pending |
+| **Phase 8** | Reporting & Analytics (Server-Side SQL Telemetry Aggregations, Recharts Accessible Light Theme, Global Range & Source Filters, NetGuardian Security Report, ReportLab Multi-Page PDF Engine with NumberedCanvas, Audit Logging, Benchmark Timings) | ✅ Completed & Verified |
 | **Phase 9** | Automated Testing & Integration Verification (Backend pytest, E2E Flow, Build Verification) | Pending |
 | **Phase 10** | Polish, Documentation & Viva Preparation (Academic Report, Diagrams, Guides, Slides) | Pending |
 
@@ -340,6 +340,64 @@
    - `HYPOTHETICAL`: What-If attack path projections and simulated isolation states.
 
 7. **Automated Verification**:
-   - `backend/tests/test_phase7b.py`: 5/5 acceptance tests passing (12-step demo end-to-end, reset demo restores baseline idempotently with RBAC, live mode fallback without permission, fake packet parsing proves zero payload stored, demo mode uses real engine data).
-   - `backend/tests/test_phase7b_playwright.py`: Real Chromium browser test passing with all 13 step screenshots captured and stored in `backend/tests/screenshots/` and brain artifacts.
-   - Complete test suite: **87/87 passing across 10 suites in 146.13s** (saved to `docs/test_output_phase7b.txt`).
+   - `backend/tests/test_phase7b.py`: 8/8 acceptance tests passing (12-step demo end-to-end, reset demo restores baseline idempotently with RBAC, live mode fallback without permission, fake packet parsing proves zero payload stored, demo mode uses real engine data, demo end state & rogue status assertion, demo repeatability across runs with identical metrics, database migrations on older database copy).
+   - `backend/tests/test_phase7b_playwright.py`: Real Chromium browser test passing with all 13 step screenshots captured and stored in `backend/tests/screenshots/` and brain artifacts; confirmed Logout and Profile are reachable in Demo Mode.
+   - Complete test suite: **90/90 passing across 10 suites in 191.70s** (saved to `docs/test_output_phase7b.txt`).
+
+---
+
+## Phase 8 — Reporting & Analytics Deliverables
+
+1. **Server-Side SQL Aggregation Analytics Engine (`backend/app/routes/analytics.py`)**:
+   - Implements 7 dedicated analytical query groups computed entirely on the server using SQL aggregations:
+     - Traffic Over Time (binned by minute: packet volume, byte throughput, anomalous flow indicators).
+     - Threats Over Time (binned by minute: security event counts).
+     - Threat Categories Distribution (grouped by `event_type`).
+     - Device Risk Distribution (4-tier risk distribution: Low 0-29, Medium 30-69, High 70-89, Critical 90-100).
+     - Protocol Usage (flow count, packet count, byte volume per protocol).
+     - Top Communicating Devices (top 10 talkers by total volume, flow counts, and device name mapping).
+     - Anomalies Timeline (recent Isolation Forest outlier detections with dynamic Explainable AI reasons).
+   - Zero raw row dumps to browser; instant responses via database indexed queries.
+
+2. **Accessible Light-Themed Charts (`frontend/src/pages/AnalyticsPage.jsx`)**:
+   - Strict light theme design (pure white cards `#ffffff`/`#f8fafc`, slate borders `#e2e8f0`, dark slate typography `#0f172a`).
+   - Dual-signaling accessibility: every chart includes explicit axis labels, units, interactive tooltips, and data labels/distinct color keys so color is never the sole differentiator.
+   - Fully responsive grid layout adapting cleanly to tablet and desktop viewports.
+   - Friendly empty states (*"No threats yet. Click Simulate Security Event to try it."*) when datasets are empty.
+
+3. **Global Range & Source Filters**:
+   - Time range selector (`Last 15m`, `Last 1h`, `All Data`) uniformly filters all charts and report metrics.
+   - Data source filter (`ALL`, `SIMULATED`, `OBSERVED`) prevents conflation of synthetic simulation and live-captured telemetry, rendering explicit badges on every view.
+
+4. **NetGuardian Security Report (`backend/app/routes/reports.py` & `frontend/src/pages/ReportsPage.jsx`)**:
+   - Generates structured audit reports across 11 distinct analytical sections:
+     1. Reporting Period & Operational Mode Notice.
+     2. Network Overview & Health Score Breakdown (baseline 100, active threat penalty, anomaly penalty, unregistered device penalty, containment credit, and exact formula).
+     3. Monitored Devices Inventory.
+     4. Network Traffic Summary.
+     5. Security Events & Threat Detections.
+     6. AI-Powered Anomaly Detections.
+     7. High-Risk Devices.
+     8. Designated Critical Assets.
+     9. Simulated Attack Paths (explicitly labeled `HYPOTHETICAL`).
+     10. Actionable Security Recommendations (prioritizing high-risk host containment and zero-trust segmentation).
+     11. Conclusion & Methodological Limitations (*"anomalies are not proof of attacks"*).
+   - Explicit `SIMULATED DATA NOTICE` banner on all reports.
+
+5. **Multi-Page PDF Generator (`NumberedCanvas` & ReportLab)**:
+   - Endpoint `GET /api/reports/export-pdf` dynamically compiles a 3-page downloadable PDF.
+   - Implements custom `NumberedCanvas` rendering running headers and footers with "Page X of Y".
+   - Verified via automated `pypdf` text extraction in pytest and Playwright E2E browser tests.
+
+6. **Permissions & Audit Trail**:
+   - Analytics and reporting endpoints permit access to Administrators and Analysts; unauthenticated requests receive `401 Unauthorized`.
+   - Every report generation is recorded in `audit_logs` with action `GENERATE_REPORT`, username, reporting period, and format.
+
+7. **Scalability & Performance Benchmark**:
+   - Compound indexes on `(data_source, timestamp)`, `(source_ip, bytes)`, and `(protocol)` guarantee sub-500ms execution across 50,000 traffic records and 100 enrolled devices.
+   - Automated benchmark verifies average endpoint latency well under the 500 ms threshold.
+
+8. **Automated Verification**:
+   - `backend/tests/test_phase8.py`: 7/7 acceptance checks passing (independent SQL counts matching, range and source filter mutations, injected event/what-if/isolation in report, PDF structure and text extraction, empty DB behavior, RBAC and audit logging, 50k traffic benchmark).
+   - `backend/tests/test_phase8_playwright.py`: Real Chromium browser test passing; downloaded PDF verified; screenshots captured (`phase8_01_analytics_charts.png`, `phase8_02_security_report_view.png`).
+   - Complete test suite: **98/98 passing across 11 suites in 235.01s** (saved to `docs/test_output_phase8.txt`).

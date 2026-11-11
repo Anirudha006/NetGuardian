@@ -70,7 +70,26 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE alerts ADD COLUMN detected_by VARCHAR(30) DEFAULT 'rule'",
             "ALTER TABLE traffic_records ADD COLUMN data_source VARCHAR(20) DEFAULT 'SIMULATED'",
             "ALTER TABLE devices ADD COLUMN device_source VARCHAR(20) DEFAULT 'SIMULATED'",
-            "ALTER TABLE devices ADD COLUMN is_registered BOOLEAN DEFAULT 1"
+            "ALTER TABLE devices ADD COLUMN is_registered BOOLEAN DEFAULT 1",
+            "CREATE INDEX IF NOT EXISTS idx_tr_timestamp ON traffic_records (timestamp)",
+            "CREATE INDEX IF NOT EXISTS idx_tr_data_source ON traffic_records (data_source)",
+            "CREATE INDEX IF NOT EXISTS idx_tr_protocol ON traffic_records (protocol)",
+            "CREATE INDEX IF NOT EXISTS idx_tr_source_ip ON traffic_records (source_ip)",
+            "CREATE INDEX IF NOT EXISTS idx_tr_ds_ts ON traffic_records (data_source, timestamp)",
+            """
+            CREATE TRIGGER IF NOT EXISTS audit_logs_prevent_update
+            BEFORE UPDATE ON audit_logs
+            BEGIN
+                SELECT RAISE(ABORT, 'audit_logs entries are immutable: UPDATE not permitted');
+            END;
+            """,
+            """
+            CREATE TRIGGER IF NOT EXISTS audit_logs_prevent_delete
+            BEFORE DELETE ON audit_logs
+            BEGIN
+                SELECT RAISE(ABORT, 'audit_logs entries are immutable: DELETE not permitted');
+            END;
+            """
         ]:
             try:
                 conn.execute(text(mig_sql))

@@ -36,7 +36,7 @@ class DemoScenarioManager:
         steps = {
             1: {
                 "step": 1,
-                "title": "Baseline Network Initialized",
+                "title": "Create Network Baseline",
                 "target_page": "devices",
                 "narration": "12-device baseline network synchronized in Digital Twin. All systems online, health at 100% (HEALTHY), zero security alerts.",
                 "action": "View network inventory and synchronized topology."
@@ -57,14 +57,14 @@ class DemoScenarioManager:
             },
             4: {
                 "step": 4,
-                "title": "Suspicious Port Reconnaissance",
+                "title": "Suspicious Behavior Injected",
                 "target_page": "threats",
                 "narration": "Rogue-Laptop rapidly probes 17 sensitive service ports across the subnet, seeking vulnerable entry points.",
                 "action": "Simulated multi-port reconnaissance emitted."
             },
             5: {
                 "step": 5,
-                "title": "Rule Engine Detects Attack",
+                "title": "Rule Engine Detects Threat",
                 "target_page": "threats",
                 "narration": "Rule RULE-02 triggers: Rapid port-scanning reconnaissance detected (17 unique destination ports in window > 15 threshold). High-severity alert logged.",
                 "action": "High-severity alert created and logged."
@@ -99,23 +99,23 @@ class DemoScenarioManager:
             },
             10: {
                 "step": 10,
-                "title": "Potential Attack Path Calculated",
+                "title": "Calculate Attack Paths",
                 "target_page": "what-if",
                 "narration": "Digital Twin traverses structural graph: traces lateral path Rogue-Laptop → Switch → Server → Database (3 hops). Critical target reached = YES, Path Risk = 60.5 (HIGH).",
                 "action": "Inspect attack path steps and mathematical formula breakdown."
             },
             11: {
                 "step": 11,
-                "title": "Execute Simulated Isolation",
+                "title": "Simulate Network Isolation",
                 "target_page": "what-if",
                 "narration": "Operator executes simulated containment. Digital Twin severs graph edges, silencing rogue traffic without physical network disruption.",
                 "action": "Trigger Simulated Isolation."
             },
             12: {
                 "step": 12,
-                "title": "Attack Path Interrupted & Health Restored",
+                "title": "Path Interrupted & Risk Reduced",
                 "target_page": "what-if",
-                "narration": "Reachable systems severed to 0 (100% reduction). Simulated Path Risk drops to 0.0. Network health score recovers. Incident contained successfully!",
+                "narration": "Attack path severed: reachable systems reduced from 3 to 0. Simulated Path Risk drops from 60.5 to 0.0. Rogue-Laptop remains ISOLATED (risk reduced to 10.0, network health improved to 90.0). Incident contained; physical removal required to return to 100% baseline.",
                 "action": "Review Before vs After comparison and final report readiness."
             }
         }

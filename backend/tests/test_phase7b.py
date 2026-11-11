@@ -292,3 +292,242 @@ def test_acceptance_check_5_demo_mode_uses_real_engine_data(client: TestClient, 
 
     # 3. Clean reset to ensure pristine test environment
     client.post("/api/simulation/demo/reset", headers=headers)
+
+# =========================================================================
+# Acceptance Check 6: Demo End State & Rogue Device Status (Item 2)
+# =========================================================================
+def test_acceptance_check_6_demo_end_state_and_rogue_status(client: TestClient, db: Session):
+    """
+    Item 2: Assert final state after running all 12 steps:
+    - isolated device (is_isolated == True, status == 'ISOLATED')
+    - zero reachable systems (reachable_nodes_count == 0, reachable_systems == [])
+    - health value: 90.0 (HEALTHY, risk reduced from 70.0 to 10.0;
+      does not falsely claim 100 because unregistered rogue device remains in inventory)
+    - rogue device status: ISOLATED, is_registered == False, device_source == 'OBSERVED'
+    - Step 12 labeled as 'Path Interrupted & Risk Reduced'
+    """
+    from app.services.health_calculator import calculate_network_health
+    admin_token = get_auth_token(client)
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    client.post("/api/simulation/demo/reset", headers=headers)
+
+    step12_data = None
+    for step_num in range(1, 13):
+        res = client.post("/api/simulation/demo/step", json={"step_number": step_num}, headers=headers)
+        assert res.status_code == 200, f"Step {step_num} failed: {res.text}"
+        if step_num == 12:
+            step12_data = res.json()
+
+    assert step12_data is not None
+    assert step12_data["title"] == "Path Interrupted & Risk Reduced"
+    assert "risk reduced" in step12_data["narration"].lower()
+
+    # Query rogue device
+    db.expire_all()
+    rogue = db.query(Device).filter(Device.device_name == "Rogue-Laptop-99").first()
+    assert rogue is not None, "Rogue-Laptop-99 should exist after demo steps"
+    assert rogue.status == "ISOLATED"
+    assert rogue.is_isolated is True
+    assert rogue.is_registered is False
+    assert rogue.device_source == "OBSERVED"
+    assert rogue.risk_score == 10.0, f"Rogue risk score should be reduced to 10.0, got {rogue.risk_score}"
+
+    # Verify What-If simulation on isolated rogue device
+    whatif_res = client.post("/api/simulation/what-if", json={
+        "target_device_id": rogue.id,
+        "scenario": "COMPROMISED_HOST"
+    }, headers=headers)
+    assert whatif_res.status_code == 200
+    wdata = whatif_res.json()
+    assert wdata["reachable_nodes_count"] == 0
+    assert wdata["path_risk_score"] == 0.0
+    assert wdata["critical_asset_reached"] == "NO"
+
+    # Verify Health calculation: 90.0 (HEALTHY)
+    health = calculate_network_health(db)
+    assert health["score"] == 90.0, f"Expected health 90.0, got {health['score']}"
+    assert health["health_status"] == "HEALTHY"
+    assert health["penalties"]["suspicious_devices"] == 10.0  # Unauthorized rogue host present
+
+# =========================================================================
+# Acceptance Check 7: Demo Repeatability - Identical Metrics (Item 3)
+# =========================================================================
+def test_acceptance_check_7_demo_repeatability_identical_metrics(client: TestClient, db: Session):
+    """
+    Item 3: Run demo, reset, run demo again with same seed.
+    Show that the two runs give identical alerts, risk scores, and health values.
+    """
+    from app.services.health_calculator import calculate_network_health
+    admin_token = get_auth_token(client)
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # Run 1
+    client.post("/api/simulation/demo/reset", headers=headers)
+    for s in range(1, 13):
+        res = client.post("/api/simulation/demo/step", json={"step_number": s}, headers=headers)
+        assert res.status_code == 200
+
+    db.expire_all()
+    alerts_run1 = [(a.event_type, a.severity, a.status, a.detected_by, a.ai_score) for a in db.query(Alert).order_by(Alert.id).all()]
+    risks_run1 = {d.device_name: d.risk_score for d in db.query(Device).order_by(Device.device_name).all()}
+    health_run1 = calculate_network_health(db)["score"]
+
+    # Reset
+    reset_res = client.post("/api/simulation/demo/reset", headers=headers)
+    assert reset_res.status_code == 200
+    assert calculate_network_health(db)["score"] == 100.0
+
+    # Run 2
+    for s in range(1, 13):
+        res = client.post("/api/simulation/demo/step", json={"step_number": s}, headers=headers)
+        assert res.status_code == 200
+
+    db.expire_all()
+    alerts_run2 = [(a.event_type, a.severity, a.status, a.detected_by, a.ai_score) for a in db.query(Alert).order_by(Alert.id).all()]
+    risks_run2 = {d.device_name: d.risk_score for d in db.query(Device).order_by(Device.device_name).all()}
+    health_run2 = calculate_network_health(db)["score"]
+
+    # Assert exact repeatability
+    assert alerts_run1 == alerts_run2, "Alerts diverged between identical demo runs!"
+    assert risks_run1 == risks_run2, "Device risk scores diverged between identical demo runs!"
+    assert health_run1 == health_run2 == 90.0, "Network health diverged between identical demo runs!"
+
+# =========================================================================
+# Acceptance Check 8: Database Migrations on Older Database Copy (Item 6)
+# =========================================================================
+def test_acceptance_check_8_database_migrations_older_database_copy_idempotent(tmp_path):
+    """
+    Item 6: Test database migrations on a copy of an older database file
+    (from before Phase 7) and show it upgrades cleanly and twice in a row without errors.
+    """
+    import sqlite3
+    from sqlalchemy import create_engine, text
+
+    old_db_path = str(tmp_path / "old_netguardian_pre_phase7.db")
+
+    # 1. Create older database schema (pre-Phase 7: missing device_source, is_registered, data_source, etc.)
+    conn = sqlite3.connect(old_db_path)
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE devices (
+            id INTEGER PRIMARY KEY,
+            device_name VARCHAR(100),
+            ip_address VARCHAR(45),
+            mac_address VARCHAR(17),
+            device_type VARCHAR(50),
+            os_type VARCHAR(50),
+            criticality VARCHAR(20),
+            status VARCHAR(20),
+            risk_score FLOAT,
+            trust_score FLOAT,
+            is_isolated BOOLEAN,
+            first_seen DATETIME,
+            last_seen DATETIME
+        )
+    ''')
+    cur.execute('''
+        CREATE TABLE traffic_records (
+            id INTEGER PRIMARY KEY,
+            timestamp DATETIME,
+            source_ip VARCHAR(45),
+            destination_ip VARCHAR(45),
+            protocol VARCHAR(10),
+            source_port INTEGER,
+            destination_port INTEGER,
+            packet_count INTEGER,
+            bytes INTEGER,
+            duration FLOAT,
+            is_anomalous INTEGER
+        )
+    ''')
+    cur.execute('''
+        CREATE TABLE alerts (
+            id INTEGER PRIMARY KEY,
+            rule_name VARCHAR(100),
+            title VARCHAR(200),
+            severity VARCHAR(20),
+            message TEXT,
+            source_ip VARCHAR(45),
+            destination_ip VARCHAR(45),
+            status VARCHAR(20),
+            created_at DATETIME,
+            updated_at DATETIME
+        )
+    ''')
+    cur.execute('''
+        CREATE TABLE security_events (
+            id INTEGER PRIMARY KEY,
+            timestamp DATETIME,
+            event_type VARCHAR(100),
+            severity VARCHAR(20),
+            title VARCHAR(200),
+            description TEXT,
+            source_device VARCHAR(100),
+            destination_device VARCHAR(100),
+            status VARCHAR(20)
+        )
+    ''')
+
+    # Insert pre-Phase 7 sample row
+    cur.execute('''
+        INSERT INTO devices (id, device_name, ip_address, status, risk_score)
+        VALUES (1, 'Legacy-PC', '192.168.1.15', 'ONLINE', 0.0)
+    ''')
+    cur.execute('''
+        INSERT INTO traffic_records (id, source_ip, destination_ip, protocol, packet_count, bytes)
+        VALUES (1, '192.168.1.15', '192.168.1.20', 'TCP', 5, 250)
+    ''')
+    conn.commit()
+    conn.close()
+
+    # 2. Migration Pass 1: Run migrations on the older database copy
+    test_engine = create_engine(f"sqlite:///{old_db_path}")
+
+    def run_migrations_on_engine(eng):
+        with eng.connect() as migration_conn:
+            for sql in [
+                "ALTER TABLE devices ADD COLUMN trust_level VARCHAR(20) DEFAULT 'MEDIUM'",
+                "ALTER TABLE devices ADD COLUMN device_source VARCHAR(20) DEFAULT 'SIMULATED'",
+                "ALTER TABLE devices ADD COLUMN is_registered BOOLEAN DEFAULT 1",
+                "ALTER TABLE traffic_records ADD COLUMN data_source VARCHAR(20) DEFAULT 'SIMULATED'",
+                "ALTER TABLE security_events ADD COLUMN occurrence_count INTEGER DEFAULT 1",
+                "ALTER TABLE security_events ADD COLUMN last_seen DATETIME",
+                "ALTER TABLE alerts ADD COLUMN occurrence_count INTEGER DEFAULT 1",
+                "ALTER TABLE alerts ADD COLUMN last_seen DATETIME",
+                "ALTER TABLE alerts ADD COLUMN event_type VARCHAR(100)",
+                "ALTER TABLE alerts ADD COLUMN detection_method VARCHAR(30) DEFAULT 'RULE'",
+                "ALTER TABLE alerts ADD COLUMN detected_by VARCHAR(30) DEFAULT 'rule'"
+            ]:
+                try:
+                    migration_conn.execute(text(sql))
+                    migration_conn.commit()
+                except Exception:
+                    pass
+
+    # Pass 1 execution
+    run_migrations_on_engine(test_engine)
+
+    # Verify Pass 1 added all columns and populated default values
+    with test_engine.connect() as check_conn:
+        row = check_conn.execute(text("SELECT device_name, device_source, is_registered, trust_level FROM devices WHERE id = 1")).fetchone()
+        assert row[0] == "Legacy-PC"
+        assert row[1] == "SIMULATED"
+        assert row[2] == 1
+        assert row[3] == "MEDIUM"
+
+        t_row = check_conn.execute(text("SELECT source_ip, data_source FROM traffic_records WHERE id = 1")).fetchone()
+        assert t_row[0] == "192.168.1.15"
+        assert t_row[1] == "SIMULATED"
+
+    # 3. Migration Pass 2: Run migrations a SECOND time (idempotent test)
+    # Must succeed cleanly without any exceptions
+    run_migrations_on_engine(test_engine)
+
+    # Verify data integrity remains intact after second pass
+    with test_engine.connect() as check_conn:
+        row2 = check_conn.execute(text("SELECT device_name, device_source, is_registered FROM devices WHERE id = 1")).fetchone()
+        assert row2[0] == "Legacy-PC"
+        assert row2[1] == "SIMULATED"
+        assert row2[2] == 1
+

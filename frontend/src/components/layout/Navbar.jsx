@@ -319,13 +319,15 @@ export default function Navbar({
                     <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>{user?.username}</div>
                     <div style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 700, textTransform: 'uppercase', marginTop: 2 }}>{user?.role} Access</div>
                   </div>
-                  <button onClick={() => { setActiveTab('settings'); setProfileOpen(false); }}
-                    style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: '#334155' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    <Settings size={14} color="#64748b" /> Settings
-                  </button>
+                  {!isDemoMode && (
+                    <button onClick={() => { setActiveTab('settings'); setProfileOpen(false); }}
+                      style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: '#334155' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      <Settings size={14} color="#64748b" /> Settings
+                    </button>
+                  )}
                   <button onClick={() => { setActiveTab('profile'); setProfileOpen(false); }}
                     style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8125rem', color: '#334155' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
@@ -348,10 +350,10 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* NAV ROW (Task 6: hides configuration pages in Demo Mode) */}
+        {/* NAV ROW (hides settings configuration in Demo Mode; keeps Profile and others accessible) */}
         <div style={{ height: 44, display: 'flex', alignItems: 'center' }}>
           <nav className="ng-navlist">
-            {(isDemoMode ? navItems.filter(i => i.id !== 'settings' && i.id !== 'profile') : navItems).map(item => {
+            {(isDemoMode ? navItems.filter(i => i.id !== 'settings') : navItems).map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (

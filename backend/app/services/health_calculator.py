@@ -74,6 +74,9 @@ def calculate_network_health(db: Session) -> Dict[str, Any]:
             raw_suspicious_deductions += 15.0
         elif st == "SUSPICIOUS":
             raw_suspicious_deductions += 10.0
+        elif st == "ISOLATED" and (not getattr(d, "is_registered", True)):
+            # An isolated rogue/unregistered device remains an unauthorized host in network inventory
+            raw_suspicious_deductions += 10.0
         elif st == "OFFLINE":
             if crit == "CRITICAL":
                 raw_offline_deductions += 10.0
@@ -91,8 +94,12 @@ def calculate_network_health(db: Session) -> Dict[str, Any]:
     # Offline devices reduce availability. Critical/High infrastructure offline carries higher penalty.
     pass
 
-    # 4. Traffic Anomalies Penalty
-    recent_anomalies = db.query(TrafficRecord).filter(TrafficRecord.is_anomalous == 1).count()
+    # 4. Traffic Anomalies Penalty (from active non-isolated devices)
+    isolated_ips = [d.ip_address for d in devices if d.is_isolated]
+    anomaly_query = db.query(TrafficRecord).filter(TrafficRecord.is_anomalous == 1)
+    if isolated_ips:
+        anomaly_query = anomaly_query.filter(~TrafficRecord.source_ip.in_(isolated_ips))
+    recent_anomalies = anomaly_query.count()
     raw_anomaly_deductions = float(recent_anomalies * 2.5)
 
     # Total Raw Deductions Sum (Uncapped)
@@ -220,7 +227,7 @@ def calculate_device_risk_breakdown(device: Device, db: Session) -> Dict[str, An
         })
 
     # Cause 3: Identity / Rogue Unregistered Device (e.g. Unknown Device Joins event)
-    is_rogue = getattr(device, "is_unregistered", False) or "unknown" in (device.device_name or "").lower()
+    is_rogue = (not getattr(device, "is_registered", True)) or ("unknown" in (device.device_name or "").lower()) or ("rogue" in (device.device_name or "").lower())
     if is_rogue:
         factors.append({
             "name": "Rogue Unregistered Device",
@@ -232,7 +239,7 @@ def calculate_device_risk_breakdown(device: Device, db: Session) -> Dict[str, An
     if device.is_isolated:
         factors.append({
             "name": "Simulated Isolation Containment",
-            "impact": -20.0,
+            "impact": -10.0,
             "description": "Cause: Node logical links severed in Digital Twin, interrupting attack propagation"
         })
 

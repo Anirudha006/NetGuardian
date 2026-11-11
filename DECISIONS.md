@@ -163,3 +163,22 @@
 - **Rationale**: Delivers a compelling presentation experience with zero risk to operational networks, complete privacy guarantees, and robust reproducibility.
 - **Consequences**: Clean separation of live vs. simulated telemetry, rock-solid demo replayability, and clear operator visibility.
 
+
+## ADR-028: Server-Side SQL Aggregation, Accessible Light-Theme Analytics & Multi-Page Security Audit Report (Phase 8)
+- **Decision**:
+  1. **Server-Side SQL Telemetry Aggregation**:
+     All analytical charts and summary metrics (Traffic Over Time, Threats Over Time, Threat Categories, Device Risk Distribution, Protocol Usage, Top Communicating Devices, and Anomalies Timeline) are calculated exclusively on the server using optimized SQLAlchemy queries (`func.strftime`, `func.sum`, `func.count`, `case`). Raw collections of thousands of records are strictly never dumped to the browser.
+  2. **Accessible Light-Theme Visualization**:
+     All analytical charts adhere to the strict light-theme standard (white surfaces `#ffffff`/`#f8fafc`, slate borders `#e2e8f0`, dark text `#0f172a`). Every chart provides explicit axis labels, units (Packets, Bytes, Events), tooltips, and dual visual signals (patterns, distinct color bands, and data labels so color is never the only signal). Friendly empty states (*"No threats yet. Click Simulate Security Event to try it."*) are presented when data collections are empty. Responsive grid layouts adapt gracefully to tablet widths.
+  3. **Unified Filtering & Source Segregation**:
+     A global time range selector (`15m`, `1h`, `all`) and telemetry source filter (`ALL`, `SIMULATED`, `OBSERVED`) govern all analytical charts and audit reports simultaneously. `SIMULATED` and `OBSERVED` counts are never conflated without explicit categorical badges.
+  4. **Multi-Page Structured Security Report with Limitations Notice**:
+     The comprehensive NetGuardian Security Report compiles 11 distinct analytical sections: Reporting Period, Network Overview & Health Breakdown (with exact penalty/credit formula), Monitored Devices Inventory, Traffic Summary, Security Events, AI-Powered Anomalies, High-Risk Endpoints, High-Risk Endpoints, Designated Critical Infrastructure Assets, Simulated Attack Paths (explicitly tagged `HYPOTHETICAL`), Actionable Recommendations, and Conclusion. Every report incorporates the mandatory limitation disclaimer (*"anomalies are not proof of attacks"*).
+  5. **ReportLab Multi-Page PDF Engine with NumberedCanvas**:
+     PDF export (`/api/reports/export-pdf`) uses ReportLab with a two-pass `NumberedCanvas` that dynamically computes total page count, rendering professional running headers and footers with "Page X of Y", structured flowable tables, and crisp typography. Validated via direct `pypdf` text extraction across all sections.
+  6. **Role-Based Access Control & Audit Trail**:
+     Analytics and report generation endpoints permit access to Administrators and Analysts; unauthenticated requests receive `401 Unauthorized`. Every report generation triggers an immutable audit log entry in `audit_logs` recording action `GENERATE_REPORT`, username, reporting period, and format.
+  7. **High-Performance Query Scalability**:
+     Target analytical endpoints benchmark under 500 ms when evaluated against 50,000 traffic records and 100 devices through compound SQLite indexes on `(data_source, timestamp)`, `(source_ip, bytes)`, and `(protocol)`.
+- **Rationale**: Ensures enterprise-grade analytical visibility, accessible visual feedback, zero client lag, strict compliance with the security audit report specification, and reliable data integrity.
+- **Consequences**: Fast, professional, print-ready, and downloadable PDF reports directly auditable in defensive network security operations.

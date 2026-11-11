@@ -15,8 +15,8 @@
   --border-strong: #cbd5e1;
   --text-primary: #0f172a;
   --text-secondary: #334155;
-  --text-muted: #64748b;
-  --text-faint: #94a3b8;
+  --text-muted: #475569;
+  --text-faint: #64748b;
   --blue: #2563eb;
   --blue-light: #dbeafe;
   --blue-dark: #1d4ed8;
@@ -135,9 +135,9 @@ code, pre, .font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
 .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
 .btn-secondary { background: white; color: var(--text-secondary); border-color: var(--border-strong); }
 .btn-secondary:hover:not(:disabled) { background: var(--bg-subtle); }
-.btn-danger { background: var(--red-light); color: var(--red); border-color: #fca5a5; }
-.btn-success { background: var(--emerald-light); color: var(--emerald); border-color: #6ee7b7; }
-.btn-warning { background: var(--amber-light); color: var(--amber); border-color: #fcd34d; }
+.btn-danger { background: var(--red-light); color: #991b1b; border-color: #fca5a5; }
+.btn-success { background: var(--emerald-light); color: #065f46; border-color: #6ee7b7; }
+.btn-warning { background: var(--amber-light); color: #78350f; border-color: #fcd34d; font-weight: 700; }
 .btn-ghost { background: transparent; color: var(--text-muted); border-color: transparent; }
 .btn-ghost:hover:not(:disabled) { background: var(--bg-subtle); color: var(--text-primary); }
 .btn-sm { font-size: 0.75rem; padding: 5px 10px; border-radius: 6px; gap: 4px; }

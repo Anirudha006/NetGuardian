@@ -129,24 +129,61 @@ cd c:\Users\srini\OneDrive\Desktop\NetGuardian
 
 ---
 
+## 📡 Live Packet Monitoring & Setup
+
+NetGuardian supports passive, metadata-only packet collection on authorized local network interfaces. 
+
+> [!WARNING]
+> **Authorization & Verification Notice:**
+> - Live monitoring mode is **strictly for networks you own or are explicitly authorized to monitor**.
+> - Live packet monitoring **has not been verified against real traffic in the automated tests** (which use deterministic synthetic frames and mock packet streams to guarantee mathematical test reproducibility).
+> - **Zero-Payload Storage Rule:** NetGuardian strictly inspects Layer 3/4 headers (IPs, ports, protocols, byte sizes) and **never** reads, inspects, or stores application payloads, user credentials, or plaintext passwords.
+
+### Windows Setup (Npcap & Scapy)
+1. **Download and Install Npcap**:
+   - Download the official Npcap installer from [https://npcap.com](https://npcap.com).
+   - During setup, check **"Install Npcap in WinPcap API-compatible Mode"**.
+2. **Install Scapy**:
+   ```powershell
+   pip install scapy
+   ```
+3. **Verify Setup**:
+   Run the self-test script in an elevated PowerShell/Command Prompt:
+   ```powershell
+   python scripts/live_selftest.py
+   ```
+
+### Linux Permissions & Capabilities
+Raw packet sniffing on Linux requires elevated root permissions or granting packet capture capabilities to Python:
+1. **Using Linux Capabilities (Recommended without running full root)**:
+   ```bash
+   sudo setcap cap_net_raw,cap_net_admin=eip $(readlink -f $(which python3))
+   ```
+2. **Alternative (Root Execution)**:
+   ```bash
+   sudo python3 scripts/live_selftest.py
+   ```
+
+---
+
 ## 🎬 12-Step Guided Demonstration Walkthrough
 
-Click **"Launch Demo Story"** or the **"Guided Demo"** button in the top navigation bar to execute the complete scenario:
+Click **"Start Demo"** or **"Launch Demo Story"** in the top navigation bar to execute the complete incident walkthrough:
 
-1. **Step 1 — Baseline Network Initialized**: 10 monitored devices active (Router, Switch, PCs, Servers, DB). Network Health is **100% HEALTHY**.
-2. **Step 2 — Benign Traffic Pulse**: Realistic background flows (HTTP, DNS, DB queries). Zero false alerts.
-3. **Step 3 — Unknown Rogue Device Detected**: `Rogue-Laptop-99` (`192.168.1.199`) appears on `Core-Switch-01`. Flagged by RULE-03.
-4. **Step 4 — Port-Reconnaissance Scan**: Rogue laptop initiates multi-port sweeps targeting internal services.
-5. **Step 5 — Rule Engine Flags Port Scan**: RULE-01 triggers: `Possible Port-Scanning Behavior`.
-6. **Step 6 — AI Model Identifies Anomaly**: Isolation Forest scores flow at **0.89 Anomaly Score** with High confidence.
-7. **Step 7 — Red Alert Raised**: Dashboard displays alert; Network Health drops to **62% (ELEVATED_RISK)**.
-8. **Step 8 — Digital Twin Highlights Node**: Rogue laptop pulses with warning aura in the interactive topology map.
-9. **Step 9 — What-If Simulation Triggered**: Administrator tests: *"What if Rogue-Laptop-99 is compromised?"*
-10. **Step 10 — Attack Path Traced to Crown Jewel DB**:
-    $$\text{Rogue-Laptop-99} \longrightarrow \text{Core-Switch-01} \longrightarrow \text{App-Server} \longrightarrow \text{Crown-Jewel-DB}$$
-    Path Risk calculated at **84.0 / 100** (CRITICAL).
-11. **Step 11 — Simulated Isolation Executed**: Admin clicks **"Simulate Immediate Isolation"**. Digital Twin severs all incident graph edges.
-12. **Step 12 — Attack Path Neutralized & Report Export**: Reachable nodes drop to 0, path risk drops to 0, and a comprehensive Security Audit Report is exported.
+1. **Step 1 — Create Network Baseline**: 12 monitored devices synchronized in Digital Twin (Router, Switch, PCs, Servers, DB). Network Health is **100% (HEALTHY)**.
+2. **Step 2 — Normal Traffic Emitted**: Background benign flows active between workstations, server, and printer. Zero false alerts.
+3. **Step 3 — Unknown Device Joins Network**: Unauthorized rogue device `Rogue-Laptop-99` (`192.168.1.199`) connects to the Switch without IT registration (tagged `OBSERVED`).
+4. **Step 4 — Suspicious Behavior Injected**: Rogue laptop initiates multi-port reconnaissance sweeps across sensitive internal service ports.
+5. **Step 5 — Rule Engine Detects Threat**: Heuristic rule triggers: Rapid port reconnaissance scan detected (`PORT_SCAN`, `HIGH` severity).
+6. **Step 6 — AI Flags Behavioral Anomaly**: Isolation Forest scores flow telemetry at **0.88 Anomaly Score** with High confidence and plain-language explanation.
+7. **Step 7 — Dashboard Alerts Operator**: Dashboard alerts operator in 'Needs Attention' with direct triage recommendation; health score drops to 80% (DEGRADED).
+8. **Step 8 — Digital Twin Highlights Node**: Digital Twin flags Rogue-Laptop with amber status aura and elevated explainable risk breakdown.
+9. **Step 9 — Open What-If Attack Simulation**: Security operator opens What-If Studio to test: *"What could happen if Rogue-Laptop is fully compromised?"*
+10. **Step 10 — Calculate Attack Paths**: Digital Twin traverses structural graph and traces attack path:
+    $$\text{Rogue-Laptop-99} \longrightarrow \text{Switch} \longrightarrow \text{Server} \longrightarrow \text{Database}$$
+    Path Risk calculated at **60.5 (HIGH)** across 3 hops.
+11. **Step 11 — Simulate Network Isolation**: Operator executes non-destructive simulated containment, severing twin graph links without physical network disruption.
+12. **Step 12 — Path Interrupted & Risk Reduced**: Attack path severed: reachable systems reduced from 3 to 0. Simulated Path Risk drops from 60.5 to 0.0. Rogue-Laptop remains ISOLATED (risk reduced to 10.0, network health improved to 90.0). Incident contained; physical removal required to return to 100% baseline.
 
 Click **"Reset Demo"** at any time to return to the clean baseline state.
 

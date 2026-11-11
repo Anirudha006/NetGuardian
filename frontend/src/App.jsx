@@ -80,12 +80,12 @@ function StatusStrip({ status, loading }) {
     <div className="status-strip">
       {items.map(item => (
         <span key={item.label} className="status-strip-item">
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: item.ok ? '#059669' : '#dc2626', display: 'inline-block' }} />
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: item.ok ? '#047857' : '#b91c1c', display: 'inline-block' }} />
           <span style={{ fontWeight: 600 }}>{item.label}:</span>
-          <span style={{ color: item.ok ? '#059669' : '#dc2626', fontWeight: 700 }}>{item.value}</span>
+          <span style={{ color: item.ok ? '#047857' : '#b91c1c', fontWeight: 700 }}>{item.value}</span>
         </span>
       ))}
-      <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>
+      <span style={{ marginLeft: 'auto', color: '#475569' }}>
         NetGuardian v1.0.0 · Live Subsystem Verification · {new Date().toLocaleTimeString()}
       </span>
     </div>

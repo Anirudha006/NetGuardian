@@ -233,13 +233,25 @@ export const api = {
   },
 
   // Analytics
-  async getAnalytics() {
-    return request('/analytics');
+  async getAnalytics(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return request(`/analytics${query ? `?${query}` : ''}`);
   },
 
   // Reports
-  async getReportSummary() {
-    return request('/reports/summary');
+  async getReportSummary(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return request(`/reports/summary${query ? `?${query}` : ''}`);
+  },
+
+  getReportPdfUrl(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return `${BASE_URL}/reports/export-pdf${query ? `?${query}` : ''}`;
+  },
+
+  getReportHtmlUrl(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return `${BASE_URL}/reports/export-html${query ? `?${query}` : ''}`;
   },
 
   // Settings & System

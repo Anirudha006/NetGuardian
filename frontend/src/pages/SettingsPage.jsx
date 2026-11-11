@@ -407,6 +407,9 @@ export default function SettingsPage() {
             {settings?.system_mode === 'LIVE' && (
               <div style={{ fontSize: '0.75rem', color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '6px 10px', borderRadius: 6 }}>
                 🟢 <strong>Live Monitoring Mode:</strong> Passive packet header metadata capture active on authorized local interfaces. Zero application payloads or passwords are read or stored.
+                <div style={{ marginTop: 4, color: '#b45309', fontWeight: 600 }}>
+                  ⚠️ Authorization Notice: Live mode is strictly for networks you own or are authorized to monitor. Live mode has not been verified against real traffic in the automated tests.
+                </div>
               </div>
             )}
           </div>
@@ -465,11 +468,11 @@ export default function SettingsPage() {
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 14px', marginBottom: 14 }}>
                 <p style={{ margin: 0, fontWeight: 600, color: '#0f172a' }}>Passive Header Metadata Only Notice:</p>
                 <p style={{ margin: '6px 0 0 0', color: '#64748b' }}>
-                  Live monitoring mode operates strictly in passive mode on authorized local networks. 
+                  Live monitoring mode operates strictly in passive mode. Live mode is strictly for networks you own or are authorized to monitor.
                   NetGuardian collects transport metadata only (IP addresses, port numbers, protocols, timestamps, volume).
                 </p>
                 <p style={{ margin: '6px 0 0 0', color: '#b45309', fontWeight: 600 }}>
-                  PRIVACY SAFEGUARD: Under no circumstances are application passwords, unencrypted credentials, or payload contents ever inspected or stored.
+                  NOTICE: Live mode has not been verified against real traffic in the automated tests. Under no circumstances are application passwords, unencrypted credentials, or payload contents ever inspected or stored.
                 </p>
               </div>
 

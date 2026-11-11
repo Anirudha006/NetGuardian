@@ -60,8 +60,25 @@ def test_phase7b_guided_demo_and_demo_mode_playwright():
         time.sleep(1.0)
         assert page.query_selector('.demo-mode') is not None, "Demo mode class should be applied to app root"
 
-        # Verify that configuration pages (Settings and Profile) are hidden in Demo Mode
+        # Verify that Settings configuration page is hidden in Demo Mode
         assert page.query_selector('.ng-navitem:has-text("Settings")') is None, "Settings tab must be hidden in Demo Mode"
+
+        # Item 7: Confirm Logout and Profile are reachable in Demo Mode
+        profile_nav = page.wait_for_selector('.ng-navitem:has-text("Profile")', timeout=5000)
+        assert profile_nav is not None, "Profile tab must be reachable in Demo Mode"
+        profile_nav.click()
+        time.sleep(0.5)
+        assert page.wait_for_selector('text=Account Information', timeout=5000) is not None, "Profile view should be visible in Demo Mode"
+
+        # Confirm Logout (Sign Out) is reachable via user profile dropdown in Demo Mode
+        user_menu_btn = page.wait_for_selector('button:has-text("admin")', timeout=5000)
+        user_menu_btn.click()
+        time.sleep(0.5)
+        logout_btn = page.wait_for_selector('button:has-text("Sign Out")', timeout=5000)
+        assert logout_btn is not None, "Sign Out button must be reachable in Demo Mode"
+        # Close profile menu
+        user_menu_btn.click()
+        time.sleep(0.5)
 
         # Open Full Guided Demo Modal
         start_demo_btn = page.wait_for_selector('button:has-text("Start Demo")', timeout=8000)

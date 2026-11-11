@@ -144,6 +144,24 @@ $$P_{\text{total}} = P_{\text{threats}} + P_{\text{suspicious}} + P_{\text{high\
 - **$50.0 - 69.9$**: `AT RISK` (Active port scans, multiple suspicious endpoints, or elevated anomaly counts)
 - **$< 50.0$**: `CRITICAL` (Active compromise, critical asset breach, or widespread failure)
 
+### 6.3 Isolation Credit & Containment Recovery Formulation
+
+When a compromised or suspicious endpoint is isolated within the Digital Twin (`is_isolated = True`), NetGuardian applies remediation credits across both the individual device and overall network health:
+
+1. **Individual Device Containment Credit**:
+   The host receives an explicit $-20.0\text{ pts}$ containment credit in its factor formulation:
+   $$\text{Risk Score} = \max\left(0.0, \min\left(100.0, \text{Risk}_{\text{raw}} - 20.0\right)\right)$$
+   This immediately reflects the severance of lateral attack vectors from that endpoint.
+
+2. **Network Health Containment Credit & Penalty Relief**:
+   In the Network Health calculation (`calculate_network_health` in `backend/app/services/health_calculator.py`), isolating a device triggers three concurrent remediation effects:
+   - **Alert Transition**: Associated open alerts transition from active (`NEW`/`INVESTIGATING`) to `CONTAINED`, removing their active threat deduction (recovering up to $15.0\text{ pts}$ per alert).
+   - **Traffic Flow Silencing**: Synthetic and monitored anomalous flows originating from isolated IPs are excluded from the active anomaly query (`~TrafficRecord.source_ip.in_(isolated_ips)`), eliminating the anomalous flow penalty ($2.5\text{ pts}$ per flow).
+   - **High-Risk Threshold Recovery**: The $-20.0\text{ pts}$ device containment credit typically reduces device risk below the $70.0\text{ pt}$ high-risk threshold, extinguishing the $8.0\text{ pt}$ high-risk node deduction.
+   - **Containment Credit Reporting Term**: The report breakdown explicitly reports the awarded containment credit ($+C_{\text{containment}}$), reflecting lateral risk elimination:
+     $$\text{Effective Health} = \max\left(0.0, \min\left(100.0, 100.0 - P_{\text{threats}} - P_{\text{suspicious}} - P_{\text{high\_risk}} - P_{\text{anomalies}} - P_{\text{offline}} + C_{\text{containment}}\right)\right)$$
+   - **Residual Inventory Responsibility**: If an unregistered/rogue host remains on the subnet (even though isolated), a $10.0\text{ pt}$ deduction remains under $P_{\text{suspicious}}$, accurately reflecting unauthorized physical hardware presence until formal administrative decommissioning.
+
 
 ---
 

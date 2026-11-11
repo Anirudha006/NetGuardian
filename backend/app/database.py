@@ -26,7 +26,24 @@ def ensure_migrations():
                 "ALTER TABLE alerts ADD COLUMN last_seen DATETIME",
                 "ALTER TABLE alerts ADD COLUMN event_type VARCHAR(100)",
                 "ALTER TABLE alerts ADD COLUMN detection_method VARCHAR(30) DEFAULT 'RULE'",
-                "ALTER TABLE alerts ADD COLUMN detected_by VARCHAR(30) DEFAULT 'rule'"
+                "ALTER TABLE alerts ADD COLUMN detected_by VARCHAR(30) DEFAULT 'rule'",
+                """
+                CREATE TRIGGER IF NOT EXISTS audit_logs_prevent_update
+                BEFORE UPDATE ON audit_logs
+                BEGIN
+                    SELECT RAISE(ABORT, 'audit_logs entries are immutable: UPDATE not permitted');
+                END;
+                """,
+                """
+                CREATE TRIGGER IF NOT EXISTS audit_logs_prevent_delete
+                BEFORE DELETE ON audit_logs
+                BEGIN
+                    SELECT RAISE(ABORT, 'audit_logs entries are immutable: DELETE not permitted');
+                END;
+                """,
+                "CREATE INDEX IF NOT EXISTS idx_tr_ts_agg ON traffic_records (timestamp, packet_count, bytes, is_anomalous)",
+                "CREATE INDEX IF NOT EXISTS idx_tr_proto_agg ON traffic_records (protocol, bytes, packet_count)",
+                "CREATE INDEX IF NOT EXISTS idx_tr_src_agg ON traffic_records (source_ip, bytes, packet_count)"
             ]:
                 try:
                     conn.execute(text(sql))
