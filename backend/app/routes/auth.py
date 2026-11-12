@@ -89,6 +89,16 @@ def login(creds: LoginRequest, request: Request, response: Response, db: Session
     rate_key = get_rate_limit_key(clean_username, request)
     check_login_rate_limit(rate_key)
 
+    # Production mode safeguard: refuse default credentials in production mode
+    if getattr(settings, "ENVIRONMENT", "").lower() == "production":
+        insecure_passwords = ["admin123", "analyst123", "password", "default", "admin", "analyst"]
+        if creds.password.lower() in insecure_passwords:
+            logger.error(f"Login rejected: Default credentials used in production environment for '{clean_username}'.")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Production mode refuses default credentials. Default passwords must be updated before production access is permitted."
+            )
+
     # Casing and whitespace normalized lookup
     user = db.query(User).filter(func.lower(User.username) == clean_username).first()
     if not user or not verify_password(creds.password, user.password_hash):

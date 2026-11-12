@@ -204,6 +204,22 @@ def mark_all_notifications_read(
     db.commit()
     return {"read_alert_ids": sorted(list(existing))}
 
+@router.get("/threats/events", response_model=List[SecurityEventResponse])
+@router.get("/events", response_model=List[SecurityEventResponse])
+def get_security_events(
+    status: Optional[str] = None,
+    event_type: Optional[str] = None,
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db)
+):
+    """Retrieve underlying raw security events detected by Rule and AI engines."""
+    query = db.query(SecurityEvent)
+    if status:
+        query = query.filter(SecurityEvent.status.ilike(status))
+    if event_type:
+        query = query.filter(SecurityEvent.event_type.ilike(event_type))
+    return query.order_by(SecurityEvent.created_at.desc()).limit(limit).all()
+
 @router.get("/{alert_id}", response_model=AlertResponse)
 def get_alert(alert_id: int, db: Session = Depends(get_db)):
     """Retrieve complete detail and explanation for a specific alert."""
@@ -274,18 +290,3 @@ def update_alert_status(
     db.refresh(alert)
     return alert
 
-@router.get("/threats/events", response_model=List[SecurityEventResponse])
-@router.get("/events", response_model=List[SecurityEventResponse])
-def get_security_events(
-    status: Optional[str] = None,
-    event_type: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db)
-):
-    """Retrieve underlying raw security events detected by Rule and AI engines."""
-    query = db.query(SecurityEvent)
-    if status:
-        query = query.filter(SecurityEvent.status.ilike(status))
-    if event_type:
-        query = query.filter(SecurityEvent.event_type.ilike(event_type))
-    return query.order_by(SecurityEvent.created_at.desc()).limit(limit).all()

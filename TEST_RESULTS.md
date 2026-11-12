@@ -301,3 +301,165 @@ PASSED
 |---|---|---|
 | `phase8_01_analytics_charts.png` | Analytics & Telemetry Dashboard | Full analytics page showing accessible light-theme Recharts: Traffic Over Time (line), Threats Over Time (bar), Threat Categories (donut), Device Risk Distribution (severity bar), Protocol Usage (horizontal bar), Top Communicating Devices (bar), and AI Anomalies Timeline with dynamic XAI factors. Time-range and source filter buttons active. |
 | `phase8_02_security_report_view.png` | NetGuardian Security Report View | Full executive security audit report showing prominent SIMULATED DATA NOTICE, Section 1 Network Overview & Health Score Breakdown table, Section 2 Devices Inventory, Section 3 Traffic Summary, Section 4 Security Events, Section 5 AI Anomalies, Section 6 High-Risk Devices & Critical Assets, Section 7 Simulated Attack Paths (HYPOTHETICAL), Section 8 Recommendations, Section 9 Conclusion, and Section 10 Limitations Disclaimer (*"anomalies are not proof of attacks"*). |
+
+---
+
+## Phase 9 — Independent Testing & Verification Audit
+
+### 1. Executive Summary & Reliability (3 Consecutive Full Runs)
+- **Raw Output Evidence**: [docs/test_output_phase9.txt](docs/test_output_phase9.txt)
+- **Full Suite Count**: 117 tests (`test_backend.py`, `test_phase2.py`..`test_phase8.py`, `test_security_audit.py`, `test_phase9.py`, `test_phase9_playwright.py`)
+- **Pass Rate**: **117/117 PASSED (100%) across 3 consecutive runs** — zero flaky tests after fixing async select wait & scale DB reset hygiene.
+  - **Run 1**: Exit Code `0` · Duration `149.88s` (`117 passed, 2 warnings in 145.94s`)
+  - **Run 2**: Exit Code `0` · Duration `141.94s` (`117 passed, 2 warnings in 138.75s`)
+  - **Run 3**: Exit Code `0` · Duration `153.23s` (`117 passed, 3 warnings in 149.97s`)
+
+### 2. Backend Code Coverage (`pytest-cov`) — 86% Overall (3,376 Stmts, 470 Miss)
+
+| Module | Stmts | Miss | Cover |
+|---|---|---|---|
+| `backend/app/config.py` | 22 | 0 | **100%** |
+| `backend/app/routes/dashboard.py` | 58 | 0 | **100%** |
+| `backend/app/services/audit_service.py` | 11 | 0 | **100%** |
+| `backend/app/ml/feature_extractor.py` | 18 | 0 | **100%** |
+| `backend/app/utils/seed_data.py` | 62 | 0 | **100%** |
+| `backend/app/models/*` & `backend/app/schemas/*` | 304 | 0 | **100%** |
+| `backend/app/routes/analytics.py` | 85 | 2 | **98%** |
+| `backend/app/routes/traffic.py` | 53 | 1 | **98%** |
+| `backend/app/simulation/scenario_manager.py` | 128 | 2 | **98%** |
+| `backend/app/services/health_calculator.py` | 111 | 6 | **95%** |
+| `backend/app/ml/explainer.py` | 69 | 4 | **94%** |
+| `backend/app/routes/digital_twin.py` | 16 | 1 | **94%** |
+| `backend/app/database.py` | 27 | 2 | **93%** |
+| `backend/app/routes/reports.py` | 275 | 18 | **93%** |
+| `backend/app/main.py` | 89 | 8 | **91%** |
+| `backend/app/ml/model.py` | 170 | 16 | **91%** |
+| `backend/app/routes/collector.py` | 33 | 3 | **91%** |
+| `backend/app/digital_twin/twin_engine.py` | 298 | 32 | **89%** |
+| `backend/app/simulation/traffic_generator.py` | 209 | 26 | **88%** |
+| `backend/app/routes/auth.py` | 102 | 13 | **87%** |
+| `backend/app/services/auth_service.py` | 115 | 15 | **87%** |
+| `backend/app/routes/devices.py` | 119 | 17 | **86%** |
+| `backend/app/detection/rule_engine.py` | 297 | 52 | **82%** |
+| `backend/app/routes/alerts.py` | 131 | 25 | **81%** |
+| `backend/app/routes/simulation.py` | 79 | 15 | **81%** |
+| `backend/app/collector/live_collector.py` | 131 | 27 | **79%** |
+| `backend/app/routes/settings.py` | 188 | 64 | **66%** |
+| `backend/app/ml/dataset_generator.py` *(offline training script)* | 130 | 121 | **7%** |
+| **TOTAL** | **3376** | **470** | **86%** |
+
+### 3. Integration Pipeline & 8 Required Named Cases (`backend/tests/test_phase9.py`)
+
+| Case / Requirement | Named Test Function | Result | Observed Evidence |
+|---|---|---|---|
+| **Integration Flow** | `test_integration_full_pipeline_simulation_to_dashboard` | ✅ PASSED | Baseline health `100.0` (0 threats) $\rightarrow$ `PORT_SCAN` triggered $\rightarrow$ HIGH Alert created $\rightarrow$ Digital Twin node `PC-01` risk elevated $\rightarrow$ Dashboard shows `threats_detected >= 1` and health $< 100.0$ |
+| **Case 1: Normal traffic $\rightarrow$ no alert** | `test_case_1_normal_traffic_gives_no_alert` | ✅ PASSED | 3 traffic pulses executed on clean baseline $\rightarrow$ `Alert.count() == 0`, health remains `100.0` |
+| **Case 2: Unknown device $\rightarrow$ warning** | `test_case_2_unknown_device_gives_warning` | ✅ PASSED | `UNKNOWN_DEVICE` (`192.168.1.99`) creates `MEDIUM`/WARNING alert (`"Unknown Device Detected"`), creates unregistered device with `risk_score >= 30.0` (`36.0`) |
+| **Case 3: Port scan $\rightarrow$ high alert** | `test_case_3_port_scan_gives_high_alert` | ✅ PASSED | `PORT_SCAN` triggers `HIGH` severity alert (`event_type == "PORT_SCAN"`) |
+| **Case 4: Traffic spike $\rightarrow$ anomaly** | `test_case_4_traffic_spike_gives_anomaly` | ✅ PASSED | `TRAFFIC_ANOMALY` triggers `MEDIUM` anomaly alert with anomalous flow flags |
+| **Case 5: Failed auth $\rightarrow$ warning or high** | `test_case_5_failed_authentication_gives_warning_or_high` | ✅ PASSED | `FAILED_AUTH` triggers `HIGH` severity alert (`"Possible Brute-Force Pattern Detected"`) |
+| **Case 6: What-If $\rightarrow$ attack path** | `test_case_6_what_if_on_compromised_device_generates_attack_path` | ✅ PASSED | What-If on `PC-01` returns `reachable_nodes_count >= 1`, `len(attack_paths) >= 1`, `path_risk_score >= 50.0` |
+| **Case 7: Isolation $\rightarrow$ interrupts path** | `test_case_7_simulated_isolation_interrupts_path` | ✅ PASSED | Isolation sets `is_isolated == True`, `reachability_after == 0`, re-running What-If returns `0` reachable systems and `0` attack paths |
+| **Case 8: Reset $\rightarrow$ restores baseline** | `test_case_8_resetting_simulation_restores_baseline` | ✅ PASSED | `/api/simulation/demo/reset` restores `PC-01` (`is_isolated == False`), clears alerts, and restores dashboard health to `100.0` |
+
+### 4. Security Audit Verification (`backend/tests/test_phase9.py` + `test_security_audit.py`)
+
+| Security Control | Named Test | Result | Verified Proof |
+|---|---|---|---|
+| **Password Hashing** | `test_passwords_hashed_in_database` | ✅ PASSED | All user records stored with salted PBKDF2-HMAC-SHA256 hashes (600,000 iterations), length $\ge 50$, zero plaintext passwords |
+| **RBAC Enforcement** | `test_role_enforcement_on_every_state_changing_endpoint` | ✅ PASSED | All admin state-changing endpoints return `401 Unauthorized` when unauthenticated and `403 Forbidden` for Analyst role |
+| **CSRF & HTTP Security Headers** | `test_csrf_and_security_headers` | ✅ PASSED | Cookie mutations without matching `X-CSRF-Token` return `403`; middleware injects `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`, `Strict-Transport-Security`, `Referrer-Policy` |
+| **Rate Limiting & Spoofing** | `test_login_rate_limiting_with_header_spoofing` | ✅ PASSED | 6th failed attempt returns `429 Too Many Requests`; spoofing `X-Forwarded-For` from untrusted peer does not bypass rate limiter |
+| **Session Expiry** | `test_session_expiry` | ✅ PASSED | Expired JWT (`exp` in past) rejected with `401 Unauthorized` |
+| **XSS Protection** | `test_xss_protection_in_device_fields` | ✅ PASSED | Script payloads (`<script>alert('XSS-TEST')</script>`) stored literally, returned as `application/json`, rendered as plain text by React escaping |
+| **SQL Injection Resilience** | `test_sql_injection_resilience_in_filters_and_forms` | ✅ PASSED | Injection payloads (`' OR '1'='1`, `'; DROP TABLE devices; --`, `UNION SELECT`) parameterized via SQLAlchemy ORM; zero syntax errors (`200`/`422`), tables intact |
+| **Secrets & Git History Scan** | `test_no_secrets_in_repo_and_git_history` | ✅ PASSED | Recursive scan of backend, frontend, `.env.example`, and `git log -p -n 25` found 0 private keys, AWS keys, or Google API keys |
+| **Production Credential Guard** | `test_production_mode_refuses_default_credentials` | ✅ PASSED | With `ENVIRONMENT=production`, default credentials (`admin123`, `analyst123`, `admin`, `password`) are explicitly rejected with `403 Forbidden` |
+
+### 5. Performance Benchmark (`scripts/phase9_performance_audit.py`: 100 Devices, 50,000 Traffic Records)
+
+| Endpoint / View | Metric | Measured Result |
+|---|---|---|
+| `GET /api/dashboard` | API Latency (15 runs) | Min: `29.1ms` \| **Median: `34.6ms`** \| p95: `47.9ms` \| Max: `49.4ms` |
+| `GET /api/devices` | API Latency (15 runs) | Min: `5.0ms` \| **Median: `5.5ms`** \| p95: `6.9ms` \| Max: `7.2ms` |
+| `GET /api/digital-twin/topology` | API Latency (15 runs) | Min: `8.2ms` \| **Median: `9.0ms`** \| p95: `11.9ms` \| Max: `13.2ms` |
+| `GET /api/alerts` | API Latency (15 runs) | Min: `4.0ms` \| **Median: `5.2ms`** \| p95: `11.1ms` \| Max: `19.5ms` |
+| `GET /api/analytics` | API Latency (15 runs) | Min: `59.5ms` \| **Median: `62.5ms`** \| p95: `80.5ms` \| Max: `89.5ms` |
+| `GET /api/reports/summary` | API Latency (15 runs) | Min: `38.3ms` \| **Median: `42.6ms`** \| p95: `45.4ms` \| Max: `46.0ms` |
+| Dashboard (Initial Login + Render) | Browser Load (Playwright) | **`1873.3 ms`** |
+| Network Inventory (100 Devices Table) | Browser Render (Playwright) | **`194.2 ms`** |
+| Digital Twin Topology Map (100 SVG Nodes) | Browser Render (Playwright) | **`190.7 ms`** (`100` SVG `[data-testid="topology-node"]` rendered) |
+| Analytics Page (7 Charts over 50k Records) | Browser Render (Playwright) | **`450.9 ms`** |
+| Reports Page (11-Section Executive Report) | Browser Render (Playwright) | **`236.8 ms`** |
+
+### 6. Mutation Verification — "Test the Tests" (`scripts/phase9_mutation_audit.py`)
+
+| Broken Behavior (Mutated Code) | Mutation Details | Test Failure Caught | Post-Restore Status |
+|---|---|---|---|
+| **1. Port Scan Threshold Logic** | `backend/app/detection/rule_engine.py`: `if u_ports >= port_thresh:` $\rightarrow$ `if u_ports >= 999999:` | `FAILED test_rule_pipeline_window_evaluation` (`assert any(a.event_type == "PORT_SCAN" for a in alerts)` $\rightarrow$ `False`) | ✅ Restored & PASSED |
+| **2. Admin Role Check on Settings** | `backend/app/routes/settings.py`: `Depends(require_admin)` $\rightarrow$ `Depends(require_analyst_or_admin)` | `FAILED test_role_enforcement_on_every_state_changing_endpoint` (`Expected 403 on analyst PATCH /api/settings, got 200`) | ✅ Restored & PASSED |
+| **3. Network Health Formula** | `backend/app/services/health_calculator.py`: clamped penalty subtraction $\rightarrow$ `health_score = 42.0` | `FAILED test_case_1_normal_traffic_gives_no_alert` (`assert 42.0 == 100.0`) | ✅ Restored & PASSED |
+
+### 7. Clean Setup Verification & Pinned Dependencies
+- **Dependencies Pinned**: `backend/requirements.txt` pinned to exact `==` package versions (FastAPI `0.141.1`, SQLAlchemy `2.0.54`, Scikit-learn `1.9.1`, NetworkX `3.6.1`, PyJWT `2.15.1`, ReportLab `5.1.0`, PyMuPDF `2.1`, Playwright `1.64.1`, Pytest `9.1.1`); `frontend/package-lock.json` verified.
+- **Clean Virtual Environment Test**: Created fresh venv `venv_clean_audit`, installed `backend/requirements.txt`, initialized fresh `temp_clean_audit.db`, ran `seed_database(db)`, booted FastAPI TestClient, verified `GET /api/dashboard` (`200 OK`, health `100.0`) and `POST /api/auth/login` (`200 OK`).
+- **README Clarity Observations**:
+  1. `README.md` Line 89 contains an author-specific local path (`cd c:\Users\srini\OneDrive\Desktop\NetGuardian`) instead of a generic repo folder name.
+  2. Running backend commands from repo root instead of `cd backend` creates `./netguardian.db` at root instead of `backend/netguardian.db`.
+  3. `README.md` Tech Stack mentions `python-jose` while `auth_service.py` prefers `PyJWT` (`import jwt`).
+
+### 8. Final Quality Checklist (20 Items)
+
+| # | Quality Criterion | Evidence / Verification Reference | Status |
+|---|---|---|---|
+| 1 | Authentication & Password Security (PBKDF2 600k iterations, no plaintext) | `test_passwords_hashed_in_database`, `test_password_hashing` | ✅ |
+| 2 | Role-Based Access Control (401 unauth, 403 analyst on admin routes) | `test_role_enforcement_on_every_state_changing_endpoint`, `test_security_audit.py` | ✅ |
+| 3 | CSRF Double-Submit Cookie Protection | `test_csrf_protection_on_cookie_authenticated_requests` | ✅ |
+| 4 | Brute-Force Rate Limiting Resistant to `X-Forwarded-For` Spoofing | `test_login_rate_limiting_with_header_spoofing` | ✅ |
+| 5 | JWT Session Timeout & Expiry Rejection | `test_session_expiry` | ✅ |
+| 6 | HTTP Security Headers on All Responses | `test_csrf_and_security_headers` (`nosniff`, `DENY`, `HSTS`, `Referrer-Policy`) | ✅ |
+| 7 | XSS & SQL Injection Protection Across Fields and Filters | `test_xss_protection_in_device_fields`, `test_sql_injection_resilience_in_filters_and_forms` | ✅ |
+| 8 | Production Credential Safeguard & Secrets Scan | `test_production_mode_refuses_default_credentials`, `test_no_secrets_in_repo_and_git_history` | ✅ |
+| 9 | Normal Baseline Zero False Alerts (`health_score == 100.0`) | `test_case_1_normal_traffic_gives_no_alert`, `test_soak.py` (60 ticks) | ✅ |
+| 10 | Unknown Device Detection (`WARNING/MEDIUM`, Inventory Auto-Creation) | `test_case_2_unknown_device_gives_warning` | ✅ |
+| 11 | Deterministic Rule Engine (Port Scan, Traffic Spike, Failed Auth, Critical Asset) | `test_case_3`..`test_case_5`, `test_phase3.py` | ✅ |
+| 12 | Explainable AI Anomaly Detection (Isolation Forest + Dynamic Explanations) | `test_phase4.py`, `phase9_step_07_ai_anomaly.png` | ✅ |
+| 13 | Living Digital Twin Synchronization & Graph Consistency | `test_integration_full_pipeline_simulation_to_dashboard`, `test_phase5.py` | ✅ |
+| 14 | What-If Lateral Attack Path Traversal (`HYPOTHETICAL` Tagged) | `test_case_6_what_if_on_compromised_device_generates_attack_path`, `phase9_step_12_attack_path.png` | ✅ |
+| 15 | Simulated Defensive Isolation & Baseline Reset | `test_case_7_simulated_isolation_interrupts_path`, `test_case_8_resetting_simulation_restores_baseline` | ✅ |
+| 16 | Analytics Charts Exact SQL Parity & Source/Time Filtering | `test_phase8.py` Check 1 & 2, `phase9_ui_06_analytics.png` | ✅ |
+| 17 | Multi-Page Executive PDF & HTML Report with 11 Sections & Limitations Notice | `test_phase8.py` Check 4, `phase9_step_17_report.png`, `docs/sample_report.pdf` | ✅ |
+| 18 | Accessibility (Light Theme, Tabular Chart Toggles, Axe-Core Check) | `test_phase8_playwright.py` | ✅ |
+| 19 | Performance Under 100 Devices + 50,000 Traffic Records | `scripts/phase9_performance_audit.py` (All APIs $<90\text{ ms}$ p95, Twin Map `190.7 ms`) | ✅ |
+| 20 | Full 17-Step E2E Browser Walkthrough & 3x Suite Repeatability | `test_phase9_playwright.py`, `scripts/phase9_reliability_runner.py` (3/3 runs 117 passed) | ✅ |
+
+### 9. Complete Frontend Button Audit
+
+| Page / Component | Audited Interactive Buttons | Status |
+|---|---|---|
+| `LoginPage.jsx` | Toggle Password Visibility, `Sign In`, Quick-Fill Admin, Quick-Fill Analyst | ✅ All functional |
+| `Navbar.jsx` | Brand Home, `Demo Mode` Toggle, `Start Demo`, Open Tutorial (`?`), Notifications Bell, Mark All Read, Mark Single Read, View Threats, Profile Menu, Settings, Profile, `Sign Out`, 9 Nav Tabs | ✅ All functional |
+| `DashboardPage.jsx` | `Retry`, `Resume` / `Pause` / `Step` Traffic Controls, `Start Guided Demo`, `Review Threats`, `Run What-If Simulation`, `All Threats`, `Investigate`, 6 Simulate Event Cards (`Unknown Device`, `Port Scan`, `Traffic Spike`, `Failed Auth`, `Suspicious Out`, `Compromised`), Digital Twin Shortcut | ✅ All functional |
+| `DevicesPage.jsx` | `Retry`, Subtabs (`Table`, `Topology Map`, `Traffic`), `Add Device`, Refresh, `Inspect` Device, Table Pagination (`Prev`/`Next`), `Generate Pulse`, Modal `Close`/`Cancel`/`Add Device` | ✅ All functional (Live capture disabled without admin/Npcap falls back safely) |
+| `DeviceDrawer.jsx` | Close (`×`), `Run What-If Simulation`, `Simulate Isolation` / `Restore Device` | ✅ All functional |
+| `DigitalTwinPage.jsx` | `Sync Twin`, `Run What-If Analysis`, Clear Selection (`×`) | ✅ All functional |
+| `TopologyGraph.jsx` | Zoom `+`, Zoom `-`, `Fit`, Reset View | ✅ All functional |
+| `ThreatsPage.jsx` | `Simulate Security Event`, Refresh, Reset Filters, View Alert Details, Pagination (`Prev`/`Next`), Status Transitions (`Investigating`, `Contained`, `Resolved`, `False Positive`), `Run What-If on Source Host`, `Inject Flow` | ✅ All functional |
+| `WhatIfPage.jsx` | `Run What-If Simulation`, `Simulate Isolation`, `Restore Device` | ✅ All functional |
+| `TrafficPage.jsx` | `Generate Pulse`, Refresh | ✅ All functional |
+| `AnalyticsPage.jsx` | `Retry`, Time Range (`15m`, `1h`, `all`), Telemetry Source (`ALL`, `SIMULATED`, `OBSERVED`), `Show as Table` toggles on charts & anomalies | ✅ All functional |
+| `ReportsPage.jsx` | `Retry`, Time Range (`15m`, `1h`, `all`), Source (`ALL`, `SIMULATED`, `OBSERVED`), `Print-Friendly`, `Export PDF` | ✅ All functional |
+| `SettingsPage.jsx` | `Retry Connection`, `Save Settings` (Admin) / `Read-Only (Analyst)` badge when non-admin, Live Mode Consent `Cancel` / `Acknowledge & Enable` | ✅ All functional |
+| `ProfilePage` (`App.jsx`) | `Update Password`, `Replay Onboarding Tutorial`, `Back to Dashboard`, `Sign Out` | ✅ All functional |
+| `GuidedDemoModal.jsx` | Steps `1`–`12`, `Prev Step`, `Next Step`, `Auto-Play`, `Reset Demo` + Confirm/Cancel, Dock/Undock, Close (`×`) | ✅ All functional |
+| `OnboardingModal.jsx` | Close (`×`), `Skip Tutorial`, `Next` / `Get Started` | ✅ All functional |
+
+### 10. Bugs Found & Fixed During Phase 9 + Unverified Notes
+- **Bug 1 Found & Fixed**: FastAPI route shadowing in `backend/app/routes/alerts.py` — `@router.get("/{alert_id}")` was declared before `@router.get("/events")`, causing `GET /api/alerts/events` to return `422 Unprocessable Entity` (`"events"` parsed as `int`). Fixed by moving `@router.get("/events")` and `@router.get("/threats/events")` above `/{alert_id}`; verified `200 OK` on live server and unit tests.
+- **Bug 2 Found & Fixed**: Security gaps flagged during Phase 9 hardening audit: added HTTP security headers middleware in `backend/app/main.py` (`nosniff`, `DENY`, `HSTS`, `XSS-Protection`, `Referrer-Policy`) and added production safeguard in `backend/app/routes/auth.py` refusing default credentials (`admin123`, `analyst123`, etc.) when `ENVIRONMENT=production` with `403 Forbidden`.
+- **Test Timing/Hygiene Fixes**: Fixed async `<select>` population race in `test_phase9_playwright.py` and external Google Font blocking during Chromium screenshots; updated `scripts/phase9_performance_audit.py` to cleanly restore canonical 12-device baseline via `seed_database(force_reset=True)` after scale tests.
+- **Not Verified / Limitations**: Live raw-socket traffic capture (`LIVE` mode) against a physical Windows Npcap or Linux raw interface was NOT executed in automated CI tests (unit-tested with synthetic binary IPv4/TCP frames and graceful fallback when capture privileges are unavailable); offline dataset generation script `backend/app/ml/dataset_generator.py` has 7% coverage because runtime tests load the pre-trained model directly.
+
+### 11. Phase 9 Playwright Screenshots (24 Captures)
+- **Full 17-Step Success Flow (`test_phase9_full_success_flow_17_steps`)**: `phase9_step_01_login.png`, `phase9_step_02_dashboard.png`, `phase9_step_03_topology.png`, `phase9_step_04_traffic_simulation.png`, `phase9_step_05_security_event.png`, `phase9_step_06_rule_detection.png`, `phase9_step_07_ai_anomaly.png`, `phase9_step_08_alert.png`, `phase9_step_09_twin_update.png`, `phase9_step_10_select_suspicious_device.png`, `phase9_step_11_what_if.png`, `phase9_step_12_attack_path.png`, `phase9_step_13_risk_analysis.png`, `phase9_step_14_recommendation.png`, `phase9_step_15_simulated_isolation.png`, `phase9_step_16_twin_updated.png`, `phase9_step_17_report.png`.
+- **Comprehensive UI Audit (`test_phase9_comprehensive_frontend_pages`)**: `phase9_ui_01_onboarding.png`, `phase9_ui_02_demo_mode.png`, `phase9_ui_03_device_details.png`, `phase9_ui_04_settings.png`, `phase9_ui_05_profile.png`, `phase9_ui_06_analytics.png`, `phase9_ui_07_reports.png`.

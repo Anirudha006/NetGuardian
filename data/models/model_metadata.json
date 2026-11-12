@@ -22,7 +22,7 @@
   "contamination": 0.05,
   "training_samples": 2250,
   "status": "READY",
-  "trained_at": "2026-11-11T14:43:47.572494",
+  "trained_at": "2026-11-12T13:49:46.630331",
   "purpose": "Passive behavioral network anomaly detection across multi-dimensional flow metadata.",
   "validation_metrics": {
     "dataset_type": "Synthetic demonstration dataset (data/simulation/training_data.csv)",

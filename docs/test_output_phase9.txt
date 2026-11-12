@@ -1,0 +1,203 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\srini\OneDrive\Desktop\NetGuardian
+configfile: pytest.ini
+plugins: anyio-4.15.1, locust-2.46.7, platformdirs-4.12.3, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 117 items
+
+backend/tests/test_backend.py::test_password_hashing PASSED              [  0%]
+backend/tests/test_backend.py::test_root_endpoint PASSED                 [  1%]
+backend/tests/test_backend.py::test_login_admin PASSED                   [  2%]
+backend/tests/test_backend.py::test_login_wrong_password_friendly_error PASSED [  3%]
+backend/tests/test_backend.py::test_login_rate_limiting_6th_attempt PASSED [  4%]
+backend/tests/test_backend.py::test_analyst_cannot_open_admin_endpoints_403 PASSED [  5%]
+backend/tests/test_backend.py::test_passwords_not_plain_text_in_db PASSED [  5%]
+backend/tests/test_backend.py::test_user_logout PASSED                   [  6%]
+backend/tests/test_backend.py::test_dashboard_summary PASSED             [  7%]
+backend/tests/test_backend.py::test_devices_list PASSED                  [  8%]
+backend/tests/test_backend.py::test_device_risk_breakdown PASSED         [  9%]
+backend/tests/test_backend.py::test_ai_detector PASSED                   [ 10%]
+backend/tests/test_backend.py::test_digital_twin_topology PASSED         [ 11%]
+backend/tests/test_backend.py::test_what_if_compromise_and_isolation PASSED [ 11%]
+backend/tests/test_backend.py::test_demo_step_and_reset PASSED           [ 12%]
+backend/tests/test_backend.py::test_login_rate_limit_casing_and_spaces_bypass_prevented PASSED [ 13%]
+backend/tests/test_backend.py::test_pbkdf2_iterations_and_rehash_upgrade PASSED [ 14%]
+backend/tests/test_backend.py::test_session_timeout_configurable_via_settings PASSED [ 15%]
+backend/tests/test_backend.py::test_production_mode_startup_refusal PASSED [ 16%]
+backend/tests/test_backend.py::test_cookie_auth_and_csrf_validation PASSED [ 17%]
+backend/tests/test_phase2.py::test_seeded_network_documentation_ips_and_levels PASSED [ 17%]
+backend/tests/test_phase2.py::test_deterministic_traffic_same_seed_and_different_seeds PASSED [ 18%]
+backend/tests/test_phase2.py::test_normal_traffic_values_vary PASSED     [ 19%]
+backend/tests/test_phase2.py::test_add_device_validation_and_rejections PASSED [ 20%]
+backend/tests/test_phase2.py::test_baseline_learning PASSED              [ 21%]
+backend/tests/test_phase2.py::test_100_devices_performance PASSED        [ 22%]
+backend/tests/test_phase2.py::test_rate_limit_ip_does_not_trust_x_forwarded_for_by_default PASSED [ 23%]
+backend/tests/test_phase2.py::test_rate_limit_different_real_client_not_locked_out PASSED [ 23%]
+backend/tests/test_phase2.py::test_rate_limit_trusted_proxy_honors_x_forwarded_for PASSED [ 24%]
+backend/tests/test_phase2.py::test_traffic_records_50000_cap_and_fast_queries PASSED [ 25%]
+backend/tests/test_phase3.py::test_acceptance_check_1_normal_traffic_zero_alerts PASSED [ 26%]
+backend/tests/test_phase3.py::test_acceptance_check_2_unknown_device_medium_alert PASSED [ 27%]
+backend/tests/test_phase3.py::test_acceptance_check_3_port_scan_high_alert PASSED [ 28%]
+backend/tests/test_phase3.py::test_acceptance_check_4_traffic_spike_medium_alert PASSED [ 29%]
+backend/tests/test_phase3.py::test_acceptance_check_5_failed_authentication_alert PASSED [ 29%]
+backend/tests/test_phase3.py::test_acceptance_check_6_triggering_same_event_3_times_updates_1_event PASSED [ 30%]
+backend/tests/test_phase3.py::test_acceptance_check_7_status_change_persistence_and_audit_log PASSED [ 31%]
+backend/tests/test_phase3.py::test_acceptance_check_8_analyst_can_change_status_unauthenticated_gets_401 PASSED [ 32%]
+backend/tests/test_phase3.py::test_threats_page_api_filters_and_pagination PASSED [ 33%]
+backend/tests/test_phase3.py::test_rule_pipeline_window_evaluation PASSED [ 34%]
+backend/tests/test_phase4.py::test_acceptance_check_1_model_train_save_load_deterministic PASSED [ 35%]
+backend/tests/test_phase4.py::test_acceptance_check_2_normal_traffic_zero_ai_only_alerts PASSED [ 35%]
+backend/tests/test_phase4.py::test_acceptance_check_3_all_injected_anomaly_types_score_anomalous PASSED [ 36%]
+backend/tests/test_phase4.py::test_acceptance_check_4_dynamic_explainability_reasons PASSED [ 37%]
+backend/tests/test_phase4.py::test_acceptance_check_5_corrupted_model_fallback_and_status PASSED [ 38%]
+backend/tests/test_phase4.py::test_acceptance_check_6_model_card_saved_metadata PASSED [ 39%]
+backend/tests/test_phase4.py::test_detection_port_scan_120_connections_no_cap PASSED [ 40%]
+backend/tests/test_phase4.py::test_detection_100_active_devices_no_cap PASSED [ 41%]
+backend/tests/test_phase4.py::test_ai_only_escalation_two_consecutive_windows PASSED [ 41%]
+backend/tests/test_phase4.py::test_model_alone_false_positive_rate_1000_windows PASSED [ 42%]
+backend/tests/test_phase4.py::test_footer_ai_status_live_probe PASSED    [ 43%]
+backend/tests/test_phase5.py::test_item1_seeded_network_no_events_risk_zero_health_100 PASSED [ 44%]
+backend/tests/test_phase5.py::test_item2_single_port_scan_factor_list_no_double_counting PASSED [ 45%]
+backend/tests/test_phase5.py::test_item3_recomputing_twice_gives_same_numbers_no_circular_dependency PASSED [ 46%]
+backend/tests/test_phase5.py::test_item4_strong_sync_check_database_risk_only_divergence PASSED [ 47%]
+backend/tests/test_phase5.py::test_item5_health_score_clamped_with_extreme_threats PASSED [ 47%]
+backend/tests/test_phase5.py::test_item6_graph_rebuilt_from_db_on_startup_and_new_twin_matches PASSED [ 48%]
+backend/tests/test_phase5.py::test_acceptance_check_1_add_device_updates_graph_counts PASSED [ 49%]
+backend/tests/test_phase5.py::test_acceptance_check_3_resolving_or_false_positive_lowers_risk_and_recovers_health PASSED [ 50%]
+backend/tests/test_phase5.py::test_acceptance_check_6_deleting_or_taking_offline_updates_graph_and_health_penalty PASSED [ 51%]
+backend/tests/test_phase6.py::test_acceptance_check_1_compromised_pc_reaches_switch_server_database_3_hops_critical_asset_yes PASSED [ 52%]
+backend/tests/test_phase6.py::test_acceptance_check_2_path_risk_formula_and_breakdown_exact_match PASSED [ 52%]
+backend/tests/test_phase6.py::test_acceptance_check_3_printer_or_phone_different_risk_and_source_risk_variation PASSED [ 53%]
+backend/tests/test_phase6.py::test_acceptance_check_4_simulate_isolation_zero_reachability_events_contained_health_improves_traffic_silenced PASSED [ 54%]
+backend/tests/test_phase6.py::test_acceptance_check_5_restore_device_links_and_reproducible_what_if PASSED [ 55%]
+backend/tests/test_phase6.py::test_acceptance_check_6_isolated_or_offline_source_returns_no_reachable_systems_without_error PASSED [ 56%]
+backend/tests/test_phase6.py::test_acceptance_check_7_simulation_never_writes_traffic_or_changes_real_device_data PASSED [ 57%]
+backend/tests/test_phase6.py::test_acceptance_check_8_security_unauthenticated_401_no_csrf_403 PASSED [ 58%]
+backend/tests/test_phase6.py::test_acceptance_check_9_what_if_read_only_never_mutates_device_risk_status_or_traffic PASSED [ 58%]
+backend/tests/test_phase7a.py::test_acceptance_check_1_kpi_values_equal_database_counts PASSED [ 59%]
+backend/tests/test_phase7a.py::test_acceptance_check_2_dashboard_health_equals_api_and_breakdown_sums PASSED [ 60%]
+backend/tests/test_phase7a.py::test_acceptance_check_3_settings_behavior_change_audit_log_validation_analyst_403 PASSED [ 61%]
+backend/tests/test_phase7a.py::test_acceptance_check_4_traffic_pause_resume_and_step PASSED [ 62%]
+backend/tests/test_phase7a.py::test_acceptance_check_5_system_status_subsystem_probes_and_reasons PASSED [ 63%]
+backend/tests/test_phase7a.py::test_acceptance_check_6_user_notifications_read_state_on_server PASSED [ 64%]
+backend/tests/test_phase7b.py::test_acceptance_check_1_twelve_step_demo_end_to_end PASSED [ 64%]
+backend/tests/test_phase7b.py::test_acceptance_check_2_reset_demo_restores_baseline_idempotently PASSED [ 65%]
+backend/tests/test_phase7b.py::test_acceptance_check_3_live_mode_fallback_without_permission PASSED [ 66%]
+backend/tests/test_phase7b.py::test_acceptance_check_4_fake_packet_proves_no_payload_stored PASSED [ 67%]
+backend/tests/test_phase7b.py::test_acceptance_check_5_demo_mode_uses_real_engine_data PASSED [ 68%]
+backend/tests/test_phase7b.py::test_acceptance_check_6_demo_end_state_and_rogue_status PASSED [ 69%]
+backend/tests/test_phase7b.py::test_acceptance_check_7_demo_repeatability_identical_metrics PASSED [ 70%]
+backend/tests/test_phase7b.py::test_acceptance_check_8_database_migrations_older_database_copy_idempotent PASSED [ 70%]
+backend/tests/test_phase8.py::test_acceptance_check_1_charts_match_independent_sql_counts PASSED [ 71%]
+backend/tests/test_phase8.py::test_acceptance_check_2_time_range_and_source_filters PASSED [ 72%]
+backend/tests/test_phase8.py::test_acceptance_check_3_injected_event_whatif_isolation_in_report PASSED [ 73%]
+backend/tests/test_phase8.py::test_acceptance_check_4_exported_pdf_structure_and_text_extraction PASSED [ 74%]
+backend/tests/test_phase8.py::test_acceptance_check_5_empty_database_friendly_behavior PASSED [ 75%]
+backend/tests/test_phase8.py::test_acceptance_check_6_rbac_permissions_and_audit_logging PASSED [ 76%]
+backend/tests/test_phase8.py::test_acceptance_check_7_benchmark_50000_traffic_records PASSED [ 76%]
+backend/tests/test_phase8.py::test_acceptance_check_8_audit_log_immutability_triggers PASSED [ 77%]
+backend/tests/test_phase8.py::test_acceptance_check_9_pipeline_telemetry_and_analytics_integrity PASSED [ 78%]
+backend/tests/test_security_audit.py::test_unauthenticated_state_changing_endpoints_return_401 PASSED [ 79%]
+backend/tests/test_security_audit.py::test_analyst_forbidden_on_admin_only_endpoints_returns_403 PASSED [ 80%]
+backend/tests/test_security_audit.py::test_csrf_protection_on_cookie_authenticated_requests PASSED [ 81%]
+backend/tests/test_security_audit.py::test_trigger_event_requires_json_body_rejects_query_parameters PASSED [ 82%]
+backend/tests/test_phase9.py::test_integration_full_pipeline_simulation_to_dashboard PASSED [ 82%]
+backend/tests/test_phase9.py::test_case_1_normal_traffic_gives_no_alert PASSED [ 83%]
+backend/tests/test_phase9.py::test_case_2_unknown_device_gives_warning PASSED [ 84%]
+backend/tests/test_phase9.py::test_case_3_port_scan_gives_high_alert PASSED [ 85%]
+backend/tests/test_phase9.py::test_case_4_traffic_spike_gives_anomaly PASSED [ 86%]
+backend/tests/test_phase9.py::test_case_5_failed_authentication_gives_warning_or_high PASSED [ 87%]
+backend/tests/test_phase9.py::test_case_6_what_if_on_compromised_device_generates_attack_path PASSED [ 88%]
+backend/tests/test_phase9.py::test_case_7_simulated_isolation_interrupts_path PASSED [ 88%]
+backend/tests/test_phase9.py::test_case_8_resetting_simulation_restores_baseline PASSED [ 89%]
+backend/tests/test_phase9.py::test_passwords_hashed_in_database PASSED   [ 90%]
+backend/tests/test_phase9.py::test_role_enforcement_on_every_state_changing_endpoint PASSED [ 91%]
+backend/tests/test_phase9.py::test_csrf_and_security_headers PASSED      [ 92%]
+backend/tests/test_phase9.py::test_login_rate_limiting_with_header_spoofing PASSED [ 93%]
+backend/tests/test_phase9.py::test_session_expiry PASSED                 [ 94%]
+backend/tests/test_phase9.py::test_xss_protection_in_device_fields PASSED [ 94%]
+backend/tests/test_phase9.py::test_sql_injection_resilience_in_filters_and_forms PASSED [ 95%]
+backend/tests/test_phase9.py::test_no_secrets_in_repo_and_git_history PASSED [ 96%]
+backend/tests/test_phase9.py::test_production_mode_refuses_default_credentials PASSED [ 97%]
+backend/tests/test_phase9.py::test_alerts_and_settings_edge_coverage PASSED [ 98%]
+backend/tests/test_phase9_playwright.py::test_phase9_full_success_flow_17_steps PASSED [ 99%]
+backend/tests/test_phase9_playwright.py::test_phase9_comprehensive_frontend_pages PASSED [100%]
+
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\starlette\testclient.py:53
+  C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+backend/tests/test_phase8.py::test_acceptance_check_7_benchmark_50000_traffic_records
+  C:\Users\srini\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\sqlalchemy\orm\mapper.py:4409: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000241B43FC220>
+    def _event_on_init(state, args, kwargs):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.14.2-final-0 _______________
+
+Name                                          Stmts   Miss  Cover
+-----------------------------------------------------------------
+backend\app\__init__.py                           0      0   100%
+backend\app\collector\__init__.py                 0      0   100%
+backend\app\collector\live_collector.py         131     27    79%
+backend\app\config.py                            22      0   100%
+backend\app\database.py                          27      2    93%
+backend\app\detection\__init__.py                 2      0   100%
+backend\app\detection\rule_engine.py            297     52    82%
+backend\app\digital_twin\__init__.py              2      0   100%
+backend\app\digital_twin\twin_engine.py         298     32    89%
+backend\app\main.py                              89      8    91%
+backend\app\ml\__init__.py                        4      0   100%
+backend\app\ml\dataset_generator.py             130    121     7%
+backend\app\ml\explainer.py                      69      4    94%
+backend\app\ml\feature_extractor.py              18      0   100%
+backend\app\ml\model.py                         170     16    91%
+backend\app\models\__init__.py                    9      0   100%
+backend\app\models\alert.py                      30      0   100%
+backend\app\models\audit_log.py                  19      0   100%
+backend\app\models\connection.py                 14      0   100%
+backend\app\models\device.py                     21      0   100%
+backend\app\models\security_event.py             17      0   100%
+backend\app\models\simulation.py                 22      0   100%
+backend\app\models\traffic.py                    18      0   100%
+backend\app\models\user.py                       12      0   100%
+backend\app\routes\__init__.py                   11      0   100%
+backend\app\routes\alerts.py                    131     25    81%
+backend\app\routes\analytics.py                  85      2    98%
+backend\app\routes\auth.py                      102     13    87%
+backend\app\routes\collector.py                  33      3    91%
+backend\app\routes\dashboard.py                  58      0   100%
+backend\app\routes\devices.py                   119     17    86%
+backend\app\routes\digital_twin.py               16      1    94%
+backend\app\routes\reports.py                   275     18    93%
+backend\app\routes\settings.py                  188     64    66%
+backend\app\routes\simulation.py                 79     15    81%
+backend\app\routes\traffic.py                    53      1    98%
+backend\app\schemas\__init__.py                   7      0   100%
+backend\app\schemas\alert.py                     23      0   100%
+backend\app\schemas\auth.py                      15      0   100%
+backend\app\schemas\device.py                    24      0   100%
+backend\app\schemas\simulation.py                50      0   100%
+backend\app\schemas\system.py                    26      0   100%
+backend\app\schemas\traffic.py                   14      0   100%
+backend\app\services\__init__.py                  4      0   100%
+backend\app\services\audit_service.py            11      0   100%
+backend\app\services\auth_service.py            115     15    87%
+backend\app\services\health_calculator.py       111      6    95%
+backend\app\simulation\__init__.py                3      0   100%
+backend\app\simulation\scenario_manager.py      128      2    98%
+backend\app\simulation\traffic_generator.py     209     26    88%
+backend\app\utils\seed_data.py                   62      0   100%
+backend\app\utils\time_utils.py                   3      0   100%
+-----------------------------------------------------------------
+TOTAL                                          3376    470    86%
+================= 117 passed, 3 warnings in 149.97s (0:02:29) =================
